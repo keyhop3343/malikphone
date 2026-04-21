@@ -3,1358 +3,1416 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Malik Phone - مالیک فۆن</title>
+    <title>Malik Phone — مالیک فۆن</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root {
-            --primary: #0a0a0a;
-            --accent: #0071e3;
-            --accent-light: #e8f4fd;
-            --accent-gold: #f5a623;
-            --bg: #f2f2f7;
-            --surface: rgba(255,255,255,0.75);
-            --surface-solid: #ffffff;
-            --text: #1c1c1e;
-            --text-secondary: #8e8e93;
-            --border: rgba(0,0,0,0.07);
-            --shadow-sm: 0 2px 12px rgba(0,0,0,0.06);
-            --shadow: 0 4px 24px rgba(0,0,0,0.08);
-            --shadow-lg: 0 20px 60px rgba(0,0,0,0.14);
-            --radius: 18px;
-            --radius-xs: 12px;
-            --green: #25d366;
-            --transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
-        }
-        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-        html { scroll-behavior:smooth; }
-        body {
-            font-family:'Noto Sans Arabic',-apple-system,BlinkMacSystemFont,sans-serif;
-            background:var(--bg); color:var(--text);
-            line-height:1.5; -webkit-font-smoothing:antialiased;
-            overflow-x:hidden;
-        }
+/* ═══════════════════════════════════════════
+   DESIGN SYSTEM
+═══════════════════════════════════════════ */
+:root {
+    --ink:       #0f0f10;
+    --ink-soft:  #3a3a3c;
+    --muted:     #8e8e93;
+    --line:      rgba(0,0,0,0.08);
+    --bg:        #f5f5f0;
+    --card:      #ffffff;
+    --accent:    #1a56ff;
+    --accent-dk: #1040cc;
+    --gold:      #c9972c;
+    --green:     #22c55e;
+    --red:       #ef4444;
 
-        /* ── HEADER ── */
-        .header {
-            position:sticky; top:0; z-index:100;
-            padding:0.875rem 1.5rem;
-            display:flex; justify-content:space-between; align-items:center;
-            background:rgba(242,242,247,0.82);
-            backdrop-filter:saturate(180%) blur(20px);
-            -webkit-backdrop-filter:saturate(180%) blur(20px);
-            border-bottom:1px solid var(--border);
-        }
-        .logo {
-            font-size:1.35rem; font-weight:900;
-            background:linear-gradient(135deg,#0a0a0a 0%,#444 100%);
-            -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-            letter-spacing:-0.03em;
-        }
-        .logo span { color:var(--accent); -webkit-text-fill-color:var(--accent); }
-        .menu-btn {
-            width:40px; height:40px; border-radius:50%; border:none;
-            background:var(--surface-solid); cursor:pointer;
-            display:flex; flex-direction:column; align-items:center; justify-content:center;
-            gap:4px; transition:var(--transition); box-shadow:var(--shadow-sm);
-            position:relative; z-index:102;
-        }
-        .menu-btn span { display:block; width:16px; height:2px; background:var(--text); border-radius:2px; transition:var(--transition); }
-        .menu-btn.active span:nth-child(1) { transform:rotate(45deg) translate(4px,4px); }
-        .menu-btn.active span:nth-child(2) { opacity:0; transform:scaleX(0); }
-        .menu-btn.active span:nth-child(3) { transform:rotate(-45deg) translate(4px,-4px); }
+    --r-lg: 20px;
+    --r-md: 14px;
+    --r-sm: 10px;
+    --r-pill: 100px;
 
-        /* ── MENU ── */
-        .mobile-menu {
-            position:fixed; top:0; right:0;
-            width:100%; max-width:360px; height:100vh;
-            background:var(--surface-solid); z-index:99;
-            transform:translateX(105%);
-            transition:transform 0.45s cubic-bezier(0.4,0,0.2,1);
-            padding:5.5rem 1.5rem 2rem;
-            display:flex; flex-direction:column; gap:0.2rem;
-            box-shadow:-8px 0 32px rgba(0,0,0,0.1);
-            overflow-y:auto;
-        }
-        .mobile-menu.active { transform:translateX(0); }
-        .menu-backdrop {
-            position:fixed; inset:0;
-            background:rgba(0,0,0,0.25); backdrop-filter:blur(4px);
-            z-index:98; opacity:0; pointer-events:none; transition:opacity 0.3s;
-        }
-        .menu-backdrop.active { opacity:1; pointer-events:auto; }
-        .menu-item {
-            padding:0.95rem 1.1rem; border-radius:var(--radius-xs);
-            text-decoration:none; color:var(--text);
-            font-weight:600; font-size:1.05rem;
-            display:flex; align-items:center; gap:0.875rem;
-            transition:var(--transition); border:1px solid transparent;
-        }
-        .menu-item:hover { background:var(--bg); border-color:var(--border); transform:translateX(-3px); }
-        .menu-item svg { width:20px; height:20px; color:var(--accent); flex-shrink:0; }
-        .menu-divider { height:1px; background:var(--border); margin:0.6rem 0; }
-        .lang-switcher { display:flex; gap:0.5rem; padding:0.4rem; background:var(--bg); border-radius:var(--radius-xs); margin-top:0.4rem; }
-        .lang-btn {
-            flex:1; padding:0.75rem; border:2px solid transparent; background:transparent;
-            border-radius:10px; font-family:inherit; font-weight:700; font-size:0.95rem;
-            cursor:pointer; transition:var(--transition); color:var(--text-secondary);
-        }
-        .lang-btn.active { border-color:var(--accent); color:var(--accent); background:var(--accent-light); }
-        .admin-lock-menu {
-            margin-top:auto; padding:0.875rem 1rem;
-            display:flex; align-items:center; justify-content:center; gap:0.5rem;
-            color:var(--text-secondary); font-size:0.8rem; cursor:pointer;
-            opacity:0.5; transition:var(--transition);
-            border-radius:var(--radius-xs); border:1px dashed var(--border); margin-top:1rem;
-        }
-        .admin-lock-menu:hover { opacity:1; background:var(--bg); color:var(--accent); border-color:var(--accent); }
+    --ease: cubic-bezier(0.4,0,0.2,1);
+    --t: all 0.3s var(--ease);
 
-        /* ── HERO ── */
-        .hero {
-            position:relative; overflow:hidden;
-            padding:3.5rem 1.5rem 2rem;
-            text-align:center;
-            background:linear-gradient(160deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
-        }
-        .hero::before {
-            content:''; position:absolute; inset:0;
-            background:
-                radial-gradient(ellipse 60% 50% at 20% 50%, rgba(0,113,227,0.25) 0%, transparent 70%),
-                radial-gradient(ellipse 50% 60% at 80% 30%, rgba(245,166,35,0.15) 0%, transparent 70%);
-        }
-        .hero-inner { position:relative; z-index:1; max-width:700px; margin:0 auto; }
-        .hero-badge {
-            display:inline-flex; align-items:center; gap:0.4rem;
-            background:rgba(0,113,227,0.2); border:1px solid rgba(0,113,227,0.4);
-            color:#60a5fa; font-size:0.78rem; font-weight:700;
-            padding:0.4rem 1rem; border-radius:100px; margin-bottom:1.25rem;
-            letter-spacing:0.04em; text-transform:uppercase;
-            animation: fadeDown 0.6s ease both;
-        }
-        .hero h1 {
-            font-size:clamp(2rem,6vw,3.5rem); font-weight:900;
-            color:#ffffff; line-height:1.15; margin-bottom:0.75rem;
-            letter-spacing:-0.04em;
-            animation: fadeUp 0.7s 0.1s ease both;
-        }
-        .hero h1 .gold { color:var(--accent-gold); }
-        .hero p {
-            font-size:1rem; color:rgba(255,255,255,0.6);
-            margin-bottom:1.75rem; font-weight:400;
-            animation: fadeUp 0.7s 0.2s ease both;
-        }
+    --shadow-sm: 0 1px 4px rgba(0,0,0,.06), 0 2px 8px rgba(0,0,0,.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,.08), 0 8px 32px rgba(0,0,0,.06);
+    --shadow-lg: 0 16px 48px rgba(0,0,0,.14), 0 4px 12px rgba(0,0,0,.08);
+    --shadow-card: 0 2px 8px rgba(0,0,0,.06), 0 0 0 1px rgba(0,0,0,.04);
+}
 
-        /* Stats row */
-        .hero-stats {
-            display:grid; grid-template-columns:repeat(3,1fr);
-            gap:0.75rem; margin-bottom:1.75rem;
-            animation: fadeUp 0.7s 0.3s ease both;
-        }
-        .stat-card {
-            background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
-            border-radius:14px; padding:0.875rem 0.5rem; text-align:center;
-            backdrop-filter:blur(10px);
-        }
-        .stat-number { font-size:1.4rem; font-weight:900; color:#fff; letter-spacing:-0.03em; }
-        .stat-number .plus { color:var(--accent-gold); }
-        .stat-label { font-size:0.7rem; color:rgba(255,255,255,0.5); margin-top:0.15rem; font-weight:500; }
+/* ═══════════════════════════════════════════
+   RESET
+═══════════════════════════════════════════ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+    font-family:'Noto Sans Arabic',-apple-system,BlinkMacSystemFont,sans-serif;
+    background:var(--bg); color:var(--ink);
+    line-height:1.6; -webkit-font-smoothing:antialiased;
+    overflow-x:hidden; font-size:16px;
+}
+img{max-width:100%;display:block}
+button,a{cursor:pointer}
+a{text-decoration:none;color:inherit}
 
-        /* CTA buttons in hero */
-        .hero-ctas {
-            display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap;
-            animation: fadeUp 0.7s 0.4s ease both;
-        }
-        .btn-hero-primary {
-            display:inline-flex; align-items:center; gap:0.5rem;
-            background:var(--accent); color:#fff; border:none;
-            padding:0.875rem 1.75rem; border-radius:100px;
-            font-family:inherit; font-weight:800; font-size:0.9rem;
-            cursor:pointer; text-decoration:none; transition:var(--transition);
-            box-shadow:0 8px 24px rgba(0,113,227,0.35);
-        }
-        .btn-hero-primary:hover { transform:translateY(-2px); box-shadow:0 12px 32px rgba(0,113,227,0.45); }
-        .btn-hero-wa {
-            display:inline-flex; align-items:center; gap:0.5rem;
-            background:rgba(37,211,102,0.15); color:#25d366; border:1.5px solid rgba(37,211,102,0.3);
-            padding:0.875rem 1.75rem; border-radius:100px;
-            font-family:inherit; font-weight:700; font-size:0.9rem;
-            cursor:pointer; text-decoration:none; transition:var(--transition);
-        }
-        .btn-hero-wa:hover { background:var(--green); color:#fff; border-color:var(--green); transform:translateY(-2px); }
+/* ═══════════════════════════════════════════
+   HEADER
+═══════════════════════════════════════════ */
+.site-header{
+    position:sticky;top:0;z-index:200;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0 1.25rem;
+    height:56px;
+    background:rgba(245,245,240,0.88);
+    backdrop-filter:saturate(180%) blur(24px);
+    -webkit-backdrop-filter:saturate(180%) blur(24px);
+    border-bottom:1px solid var(--line);
+}
+.site-logo{
+    font-size:1.2rem;font-weight:900;
+    letter-spacing:-0.04em;color:var(--ink);
+    display:flex;align-items:center;gap:0.35rem;
+}
+.site-logo .dot{
+    width:7px;height:7px;border-radius:50%;
+    background:var(--accent);display:inline-block;
+    flex-shrink:0;margin-bottom:1px;
+}
+.menu-trigger{
+    width:40px;height:40px;border-radius:50%;
+    border:none;background:var(--card);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:4.5px;box-shadow:var(--shadow-sm);
+    transition:var(--t);position:relative;z-index:302;
+}
+.menu-trigger span{
+    display:block;width:16px;height:1.5px;
+    background:var(--ink);border-radius:2px;transition:var(--t);
+}
+.menu-trigger.open span:nth-child(1){transform:rotate(45deg) translate(4.5px,4.5px)}
+.menu-trigger.open span:nth-child(2){opacity:0;transform:scaleX(0)}
+.menu-trigger.open span:nth-child(3){transform:rotate(-45deg) translate(4.5px,-4.5px)}
 
-        /* Scroll arrow */
-        .scroll-hint {
-            margin-top:1.75rem; color:rgba(255,255,255,0.3); font-size:0.75rem;
-            display:flex; flex-direction:column; align-items:center; gap:0.4rem;
-            animation: fadeUp 0.7s 0.5s ease both;
-        }
-        .scroll-hint svg { animation:bounce 2s infinite; }
-        @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(5px)} }
+/* ═══════════════════════════════════════════
+   DRAWER MENU
+═══════════════════════════════════════════ */
+.drawer-scrim{
+    position:fixed;inset:0;background:rgba(15,15,16,.4);
+    backdrop-filter:blur(4px);z-index:299;
+    opacity:0;pointer-events:none;transition:opacity .35s var(--ease);
+}
+.drawer-scrim.open{opacity:1;pointer-events:auto}
+.drawer{
+    position:fixed;top:0;right:0;
+    width:min(320px,90vw);height:100%;
+    background:var(--card);z-index:300;
+    transform:translateX(110%);
+    transition:transform .4s var(--ease);
+    display:flex;flex-direction:column;
+    overflow-y:auto;
+    padding:4.5rem 1.25rem 2rem;
+    gap:0.2rem;
+}
+.drawer.open{transform:translateX(0)}
+.drawer-nav-item{
+    display:flex;align-items:center;gap:0.875rem;
+    padding:0.95rem 1rem;border-radius:var(--r-md);
+    font-size:1rem;font-weight:600;color:var(--ink);
+    border:1px solid transparent;transition:var(--t);
+}
+.drawer-nav-item:hover{background:var(--bg);border-color:var(--line)}
+.drawer-nav-item .ni{
+    width:36px;height:36px;border-radius:var(--r-sm);
+    background:var(--bg);display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;color:var(--accent);
+}
+.drawer-sep{height:1px;background:var(--line);margin:.5rem 0}
+.lang-row{display:flex;gap:.5rem;padding:.4rem;background:var(--bg);border-radius:var(--r-md);margin:.4rem 0}
+.lang-pill{
+    flex:1;padding:.7rem;border:1.5px solid transparent;
+    border-radius:var(--r-sm);background:none;
+    font-family:inherit;font-size:.9rem;font-weight:700;
+    cursor:pointer;transition:var(--t);color:var(--muted);
+}
+.lang-pill.on{border-color:var(--accent);color:var(--accent);background:#eef3ff}
+.admin-drawer-link{
+    margin-top:auto;padding:.75rem;
+    display:flex;align-items:center;justify-content:center;gap:.5rem;
+    border:1px dashed var(--line);border-radius:var(--r-md);
+    font-size:.8rem;color:var(--muted);cursor:pointer;
+    transition:var(--t);opacity:.6;
+}
+.admin-drawer-link:hover{opacity:1;color:var(--accent);border-color:var(--accent);background:#eef3ff}
 
-        @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-        @keyframes fadeDown { from{opacity:0;transform:translateY(-12px)} to{opacity:1;transform:translateY(0)} }
+/* ═══════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════ */
+.hero{
+    background:#0f0f10;
+    position:relative;overflow:hidden;
+    padding:3.5rem 1.25rem 2.75rem;
+    text-align:center;
+}
+/* Layered abstract blobs */
+.hero::before{
+    content:'';position:absolute;inset:0;
+    background:
+        radial-gradient(ellipse 70% 60% at 15% 40%, rgba(26,86,255,.3) 0%,transparent 65%),
+        radial-gradient(ellipse 55% 50% at 85% 25%, rgba(201,151,44,.18) 0%,transparent 65%),
+        radial-gradient(ellipse 45% 55% at 60% 80%, rgba(26,86,255,.12) 0%,transparent 65%);
+    pointer-events:none;
+}
+/* subtle grid lines */
+.hero::after{
+    content:'';position:absolute;inset:0;
+    background-image:
+        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+    background-size:40px 40px;
+    pointer-events:none;
+}
+.hero-inner{position:relative;z-index:1;max-width:680px;margin:0 auto}
 
-        /* ── SERVICES STRIP ── */
-        .services-strip {
-            background:var(--surface-solid);
-            border-bottom:1px solid var(--border);
-            padding:1.25rem 1.5rem;
-            overflow-x:auto; -webkit-overflow-scrolling:touch;
-            scrollbar-width:none;
-        }
-        .services-strip::-webkit-scrollbar { display:none; }
-        .services-row {
-            display:flex; gap:0.75rem; min-width:max-content;
-            justify-content:center;
-        }
-        .service-pill {
-            display:inline-flex; align-items:center; gap:0.5rem;
-            background:var(--bg); border:1px solid var(--border);
-            padding:0.5rem 1rem; border-radius:100px;
-            font-size:0.8rem; font-weight:600; color:var(--text);
-            white-space:nowrap;
-        }
-        .service-pill .icon { font-size:0.95rem; }
+.hero-eyebrow{
+    display:inline-flex;align-items:center;gap:.4rem;
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.12);
+    padding:.35rem .9rem;border-radius:var(--r-pill);
+    font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+    color:rgba(255,255,255,.55);margin-bottom:1.25rem;
+    animation:fadeUp .6s var(--ease) both;
+}
+.hero-eyebrow .pulse{
+    width:6px;height:6px;border-radius:50%;background:#22c55e;
+    animation:pulse 2s infinite;flex-shrink:0;
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
 
-        /* ── FILTERS ── */
-        .filters-container { max-width:1200px; margin:0 auto; padding:1.5rem 1.25rem 0.75rem; }
-        .filter-group { display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.6rem; justify-content:center; }
-        .filter-btn {
-            padding:0.5rem 1.1rem; border-radius:100px;
-            border:1px solid var(--border); background:var(--surface-solid);
-            color:var(--text); font-family:inherit; font-size:0.82rem; font-weight:700;
-            cursor:pointer; transition:var(--transition); white-space:nowrap;
-        }
-        .filter-btn:hover, .filter-btn.active {
-            background:var(--primary); color:#fff; border-color:var(--primary);
-            transform:translateY(-1px); box-shadow:0 4px 12px rgba(0,0,0,0.14);
-        }
-        .sub-filters { display:none; animation:slideDown 0.3s ease; }
-        .sub-filters.active { display:flex; }
-        @keyframes slideDown { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+.hero-title{
+    font-size:clamp(2.1rem,7vw,3.8rem);
+    font-weight:900;color:#fff;line-height:1.1;
+    letter-spacing:-.045em;margin-bottom:.6rem;
+    animation:fadeUp .7s .08s var(--ease) both;
+}
+.hero-title em{
+    font-style:normal;color:var(--gold);
+    display:block;font-size:clamp(1.3rem,4vw,2rem);
+    margin-top:.25rem;font-weight:700;letter-spacing:-.02em;
+}
+.hero-sub{
+    font-size:.95rem;color:rgba(255,255,255,.5);
+    margin-bottom:2rem;
+    animation:fadeUp .7s .16s var(--ease) both;
+}
 
-        /* ── GRID ── */
-        .container { max-width:1400px; margin:0 auto; padding:0.75rem 1.25rem 4rem; }
-        .products-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:0.85rem; }
-        @media(min-width:640px) { .products-grid { grid-template-columns:repeat(3,1fr); gap:1.1rem; } }
-        @media(min-width:1024px) { .products-grid { grid-template-columns:repeat(4,1fr); gap:1.5rem; } }
-        @media(min-width:768px) {
-            .header { padding:0.875rem 2.5rem; }
-            .filters-container { padding:1.5rem 2rem 0.75rem; }
-            .container { padding:0.75rem 2rem 5rem; }
-        }
+/* STAT ROW — only 1 stat now (10 years) */
+.hero-stat{
+    display:inline-flex;align-items:center;gap:.75rem;
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:var(--r-md);padding:.75rem 1.25rem;
+    margin-bottom:2rem;
+    animation:fadeUp .7s .22s var(--ease) both;
+}
+.hero-stat-num{font-size:1.5rem;font-weight:900;color:#fff;letter-spacing:-.04em}
+.hero-stat-num .plus{color:var(--gold)}
+.hero-stat-label{font-size:.78rem;color:rgba(255,255,255,.45);font-weight:500;text-align:right}
 
-        /* ── PRODUCT CARD ── */
-        .product-card {
-            background:var(--surface-solid); border-radius:var(--radius);
-            overflow:hidden; box-shadow:var(--shadow-sm);
-            transition:var(--transition); position:relative;
-            border:1px solid var(--border);
-            display:flex; flex-direction:column;
-        }
-        .product-card:hover { transform:translateY(-6px); box-shadow:var(--shadow-lg); }
+.hero-actions{
+    display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;
+    animation:fadeUp .7s .28s var(--ease) both;
+}
+.btn-shop{
+    display:inline-flex;align-items:center;gap:.5rem;
+    background:var(--accent);color:#fff;
+    padding:.85rem 1.75rem;border-radius:var(--r-pill);
+    font-family:inherit;font-size:.92rem;font-weight:800;
+    border:none;transition:var(--t);
+    box-shadow:0 6px 20px rgba(26,86,255,.35);
+    min-height:48px;
+}
+.btn-shop:hover{background:var(--accent-dk);transform:translateY(-2px);box-shadow:0 10px 28px rgba(26,86,255,.4)}
+.btn-wa-hero{
+    display:inline-flex;align-items:center;gap:.5rem;
+    background:rgba(34,197,94,.12);color:#4ade80;
+    border:1.5px solid rgba(34,197,94,.25);
+    padding:.85rem 1.75rem;border-radius:var(--r-pill);
+    font-family:inherit;font-size:.92rem;font-weight:700;
+    transition:var(--t);min-height:48px;
+}
+.btn-wa-hero:hover{background:var(--green);color:#fff;border-color:var(--green);transform:translateY(-2px)}
 
-        /* Image area — full bleed, taller */
-        .card-image-wrapper {
-            position:relative; aspect-ratio:3/4; overflow:hidden;
-            background:linear-gradient(160deg,#f2f2f7 0%,#e5e5ea 100%);
-            flex-shrink:0;
-        }
-        .card-image { width:100%; height:100%; object-fit:cover; transition:transform 0.55s ease; display:block; }
-        .product-card:hover .card-image { transform:scale(1.06); }
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 
-        /* Gradient overlay at bottom of image */
-        .card-image-overlay {
-            position:absolute; bottom:0; left:0; right:0;
-            background:linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.28) 50%, transparent 100%);
-            padding:0.6rem 0.75rem 0.65rem;
-        }
-        .card-overlay-name {
-            font-size:0.82rem; font-weight:700; color:#fff;
-            line-height:1.35;
-            text-shadow:0 1px 4px rgba(0,0,0,0.5);
-            display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
-        }
+/* ═══════════════════════════════════════════
+   TRUST BAR (replaces fake stats + service pills)
+═══════════════════════════════════════════ */
+.trust-bar{
+    background:var(--card);
+    border-bottom:1px solid var(--line);
+    padding:0;
+    overflow-x:auto;-webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+}
+.trust-bar::-webkit-scrollbar{display:none}
+.trust-row{
+    display:flex;
+    min-width:max-content;
+    padding:0 1.25rem;
+}
+.trust-item{
+    display:flex;align-items:center;gap:.6rem;
+    padding:1rem 1.25rem;
+    border-left:1px solid var(--line);
+    white-space:nowrap;
+    font-size:.82rem;font-weight:600;color:var(--ink-soft);
+}
+.trust-item:first-child{border-left:none}
+.trust-icon{font-size:1rem;flex-shrink:0}
 
-        /* Badge top-right */
-        .card-badge {
-            position:absolute; top:0.6rem; right:0.6rem;
-            background:rgba(0,0,0,0.55); backdrop-filter:blur(10px);
-            color:#fff; padding:0.25rem 0.6rem; border-radius:100px;
-            font-size:0.68rem; font-weight:800; letter-spacing:0.02em;
-        }
+/* ═══════════════════════════════════════════
+   FILTERS
+═══════════════════════════════════════════ */
+.filters-wrap{
+    max-width:1200px;margin:0 auto;
+    padding:1.5rem 1.25rem .75rem;
+}
+.filter-row{display:flex;gap:.4rem;flex-wrap:wrap;justify-content:center;margin-bottom:.5rem}
+.filter-chip{
+    padding:.5rem 1.1rem;border-radius:var(--r-pill);
+    border:1.5px solid var(--line);background:var(--card);
+    color:var(--ink-soft);font-family:inherit;font-size:.82rem;font-weight:700;
+    cursor:pointer;transition:var(--t);white-space:nowrap;
+    min-height:38px;
+}
+.filter-chip:hover,.filter-chip.on{
+    background:var(--ink);color:#fff;border-color:var(--ink);
+    box-shadow:0 2px 10px rgba(0,0,0,.15);
+}
+.sub-row{display:none;animation:slideDown .25s var(--ease)}
+.sub-row.visible{display:flex}
+@keyframes slideDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 
-        /* Delete btn top-left (admin only) */
-        .delete-btn {
-            position:absolute; top:0.6rem; left:0.6rem;
-            width:28px; height:28px; background:#ff3b30; color:#fff;
-            border:none; border-radius:50%; display:none;
-            align-items:center; justify-content:center;
-            cursor:pointer; font-size:1.1rem; z-index:10;
-            transition:var(--transition);
-            box-shadow:0 2px 8px rgba(255,59,48,0.4);
-        }
-        .delete-btn:hover { transform:scale(1.15) rotate(90deg); background:#ff453a; }
-        .admin-mode .delete-btn { display:flex; }
+/* ═══════════════════════════════════════════
+   PRODUCTS GRID
+═══════════════════════════════════════════ */
+.grid-wrap{max-width:1400px;margin:0 auto;padding:.5rem 1.25rem 3rem}
+.products-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:1rem;
+}
+@media(min-width:560px){.products-grid{grid-template-columns:repeat(3,1fr);gap:1.1rem}}
+@media(min-width:900px){.products-grid{grid-template-columns:repeat(4,1fr);gap:1.25rem}}
+@media(min-width:1200px){.products-grid{grid-template-columns:repeat(5,1fr)}}
+@media(min-width:768px){
+    .filters-wrap,.grid-wrap{padding-right:2rem;padding-left:2rem}
+    .site-header{padding:0 2rem;height:60px}
+    .hero{padding:4.5rem 2rem 3.5rem}
+    .drawer{padding:5rem 1.75rem 2rem}
+}
 
-        /* Card bottom section */
-        .card-content {
-            padding:0.65rem 0.75rem 0.7rem;
-            display:flex; align-items:center; justify-content:space-between;
-            gap:0.5rem;
-        }
-        .card-price {
-            font-size:0.88rem; font-weight:900; color:var(--accent);
-            letter-spacing:-0.02em; white-space:nowrap;
-        }
-        .card-actions { display:flex; gap:0.3rem; flex-shrink:0; }
-        .btn-action {
-            width:28px; height:28px; border-radius:50%;
-            border:1px solid var(--border); background:var(--bg);
-            display:flex; align-items:center; justify-content:center;
-            cursor:pointer; transition:var(--transition); color:var(--text);
-            flex-shrink:0;
-        }
-        .btn-action:hover { background:var(--primary); color:#fff; transform:scale(1.1); border-color:var(--primary); }
-        .btn-action.whatsapp { background:rgba(37,211,102,0.1); color:var(--green); border-color:rgba(37,211,102,0.25); }
-        .btn-action.whatsapp:hover { background:var(--green); color:#fff; border-color:var(--green); box-shadow:0 3px 10px rgba(37,211,102,0.3); }
+/* ═══════════════════════════════════════════
+   PRODUCT CARD
+═══════════════════════════════════════════ */
+.p-card{
+    background:var(--card);border-radius:var(--r-lg);
+    overflow:hidden;box-shadow:var(--shadow-card);
+    transition:var(--t);position:relative;
+    display:flex;flex-direction:column;
+}
+.p-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg)}
+.p-card:active{transform:translateY(-2px)}
 
-        /* ── SKELETON ── */
-        .skeleton {
-            background:linear-gradient(90deg,#ebebeb 25%,#d8d8d8 50%,#ebebeb 75%);
-            background-size:200% 100%; animation:shimmer 1.4s infinite;
-            border-radius:var(--radius); aspect-ratio:3/4;
-        }
-        @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+/* Image */
+.p-img-wrap{
+    position:relative;aspect-ratio:3/4;overflow:hidden;
+    background:linear-gradient(135deg,#f0f0eb,#e0e0da);
+    flex-shrink:0;
+}
+.p-img{width:100%;height:100%;object-fit:cover;transition:transform .55s var(--ease)}
+.p-card:hover .p-img{transform:scale(1.06)}
 
-        /* ── EMPTY STATE ── */
-        .empty-state { text-align:center; padding:4rem 2rem; grid-column:1/-1; }
-        .empty-state-icon { font-size:2.5rem; margin-bottom:0.875rem; opacity:0.2; }
-        .empty-state h3 { font-size:1.15rem; font-weight:800; margin-bottom:0.4rem; }
-        .empty-state p { color:var(--text-secondary); font-size:0.9rem; }
+/* Type badge — top right */
+.p-badge{
+    position:absolute;top:.55rem;right:.55rem;
+    background:rgba(15,15,16,.65);backdrop-filter:blur(8px);
+    color:#fff;padding:.25rem .6rem;border-radius:var(--r-pill);
+    font-size:.65rem;font-weight:800;letter-spacing:.03em;
+    line-height:1;
+}
 
-        /* ── ABOUT / WHY US SECTION ── */
-        .why-us {
-            background:var(--surface-solid);
-            border-top:1px solid var(--border);
-            border-bottom:1px solid var(--border);
-            padding:2.5rem 1.5rem;
-            margin:1.5rem 0;
-        }
-        .why-us-inner { max-width:900px; margin:0 auto; }
-        .section-label {
-            font-size:0.72rem; font-weight:800; letter-spacing:0.1em;
-            text-transform:uppercase; color:var(--accent);
-            margin-bottom:0.5rem;
-        }
-        .section-title {
-            font-size:clamp(1.3rem,3vw,2rem); font-weight:900;
-            color:var(--primary); margin-bottom:0.4rem; letter-spacing:-0.03em;
-        }
-        .section-sub {
-            font-size:0.9rem; color:var(--text-secondary);
-            margin-bottom:1.75rem; max-width:500px;
-        }
-        .why-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.875rem; }
-        @media(min-width:640px) { .why-grid { grid-template-columns:repeat(4,1fr); } }
-        .why-card {
-            background:var(--bg); border:1px solid var(--border);
-            border-radius:var(--radius-xs); padding:1.1rem 0.875rem;
-            transition:var(--transition);
-        }
-        .why-card:hover { transform:translateY(-3px); box-shadow:var(--shadow); border-color:rgba(0,113,227,0.2); }
-        .why-icon { font-size:1.5rem; margin-bottom:0.5rem; }
-        .why-title { font-size:0.82rem; font-weight:800; margin-bottom:0.25rem; color:var(--primary); }
-        .why-text { font-size:0.75rem; color:var(--text-secondary); line-height:1.55; }
+/* Delete — admin only, top left */
+.p-delete{
+    position:absolute;top:.55rem;left:.55rem;
+    width:30px;height:30px;border-radius:50%;
+    background:var(--red);color:#fff;
+    border:none;display:none;align-items:center;justify-content:center;
+    font-size:1.1rem;line-height:1;z-index:5;
+    transition:var(--t);box-shadow:0 2px 8px rgba(239,68,68,.4);
+}
+.p-delete:hover{transform:scale(1.15) rotate(90deg)}
+.admin-mode .p-delete{display:flex}
 
-        /* ── FOOTER ── */
-        .footer {
-            background:var(--primary); color:#fff;
-            padding:2.5rem 1.5rem 2rem; text-align:center; position:relative;
-        }
-        .footer-logo { font-size:1.4rem; font-weight:900; margin-bottom:0.5rem; letter-spacing:-0.03em; }
-        .footer-logo span { color:var(--accent-gold); }
-        .footer-tagline { font-size:0.82rem; color:rgba(255,255,255,0.45); margin-bottom:1.5rem; }
-        .footer-links { display:flex; justify-content:center; gap:1.25rem; margin-bottom:1.5rem; flex-wrap:wrap; }
-        .footer-link {
-            color:rgba(255,255,255,0.7); text-decoration:none; font-weight:600;
-            display:flex; align-items:center; gap:0.4rem;
-            transition:var(--transition); font-size:0.875rem; padding:0.4rem;
-        }
-        .footer-link:hover { color:#fff; }
-        .footer-link svg { color:var(--accent); }
-        .copy-btn {
-            background:rgba(255,255,255,0.1); color:#fff;
-            border:1.5px solid rgba(255,255,255,0.2);
-            padding:0.8rem 1.75rem; border-radius:100px;
-            font-family:inherit; font-weight:700; font-size:0.9rem;
-            cursor:pointer; margin-top:1.25rem; transition:var(--transition);
-        }
-        .copy-btn:hover { background:rgba(255,255,255,0.2); transform:translateY(-2px); }
-        .footer-copy { font-size:0.75rem; color:rgba(255,255,255,0.25); margin-top:1.5rem; }
-        .admin-lock-footer {
-            position:absolute; bottom:0.75rem; left:50%; transform:translateX(-50%);
-            opacity:0.04; background:none; border:none; cursor:pointer;
-            padding:0.5rem; transition:opacity 0.3s; color:#fff;
-        }
-        .admin-lock-footer:hover { opacity:0.4; }
-        .admin-mode .admin-lock-footer { opacity:0.5; color:var(--accent-gold); }
+/* Gradient + NAME overlay — bigger, clearer */
+.p-overlay{
+    position:absolute;bottom:0;left:0;right:0;
+    background:linear-gradient(to top,
+        rgba(0,0,0,.85) 0%,
+        rgba(0,0,0,.55) 40%,
+        transparent 100%);
+    padding:.65rem .7rem .7rem;
+}
+.p-name{
+    font-size:.95rem;            /* BIGGER */
+    font-weight:800;
+    color:#ffffff;               /* WHITE */
+    line-height:1.3;
+    /* BLACK GLOW / TEXT SHADOW */
+    text-shadow:
+        0 1px 4px rgba(0,0,0,.9),
+        0 2px 12px rgba(0,0,0,.7),
+        0 0 24px rgba(0,0,0,.5);
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+}
+@media(min-width:480px){.p-name{font-size:1rem}}
+@media(min-width:768px){.p-name{font-size:1.05rem}}
 
-        /* ── MODALS ── */
-        .modal-overlay {
-            position:fixed; inset:0;
-            background:rgba(0,0,0,0.4); backdrop-filter:blur(12px);
-            z-index:200; display:none; align-items:center; justify-content:center;
-            padding:1.25rem; opacity:0; transition:opacity 0.3s;
-        }
-        .modal-overlay.active { display:flex; opacity:1; }
-        .modal {
-            background:var(--surface-solid); border-radius:var(--radius);
-            width:100%; max-width:440px; max-height:92vh; overflow-y:auto;
-            box-shadow:var(--shadow-lg); border:1px solid var(--border);
-            transform:scale(0.95) translateY(10px);
-            transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);
-        }
-        .modal-overlay.active .modal { transform:scale(1) translateY(0); }
-        .modal-header {
-            padding:1.25rem 1.5rem; display:flex; justify-content:space-between; align-items:center;
-            border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--surface-solid); z-index:2;
-        }
-        .modal-title { font-size:1.1rem; font-weight:900; letter-spacing:-0.03em; }
-        .modal-close {
-            width:32px; height:32px; border-radius:50%; border:none;
-            background:var(--bg); cursor:pointer; display:flex; align-items:center; justify-content:center;
-            font-size:1.3rem; color:var(--text-secondary); transition:var(--transition);
-        }
-        .modal-close:hover { background:var(--text); color:#fff; transform:rotate(90deg); }
-        .modal-body { padding:1.5rem; }
-        .form-group { margin-bottom:1.1rem; }
-        .form-label { display:block; margin-bottom:0.4rem; font-weight:700; font-size:0.8rem; color:var(--text-secondary); }
-        .form-input, .form-select {
-            width:100%; padding:0.8rem 1rem;
-            border:1.5px solid var(--border); border-radius:var(--radius-xs);
-            font-family:inherit; font-size:1rem; background:var(--bg);
-            transition:var(--transition); color:var(--text); outline:none;
-        }
-        .form-input:focus, .form-select:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(0,113,227,0.1); background:#fff; }
-        .file-input-wrapper { position:relative; overflow:hidden; display:inline-block; width:100%; }
-        .file-input-wrapper input[type=file] { position:absolute; left:0; top:0; opacity:0; width:100%; height:100%; cursor:pointer; z-index:2; }
-        .file-input-label {
-            display:block; padding:0.875rem; border:2px dashed var(--border);
-            border-radius:var(--radius-xs); text-align:center;
-            color:var(--text-secondary); font-weight:600; font-size:0.9rem;
-            transition:var(--transition); background:var(--bg); position:relative; z-index:1;
-        }
-        .file-input-wrapper:hover .file-input-label { border-color:var(--accent); color:var(--accent); background:var(--accent-light); }
-        .upload-progress {
-            display:none; margin-top:0.6rem; padding:0.65rem 0.875rem;
-            background:var(--accent-light); border-radius:var(--radius-xs);
-            font-size:0.82rem; font-weight:600; color:var(--accent);
-            align-items:center; gap:0.4rem;
-        }
-        .upload-progress.active { display:flex; }
-        .upload-spinner {
-            width:14px; height:14px; border:2px solid rgba(0,113,227,0.2);
-            border-top-color:var(--accent); border-radius:50%;
-            animation:spin 0.8s linear infinite; flex-shrink:0;
-        }
-        @keyframes spin { to{transform:rotate(360deg)} }
-        .image-preview { margin-top:0.875rem; border-radius:var(--radius-xs); overflow:hidden; display:none; border:1px solid var(--border); position:relative; }
-        .image-preview.active { display:block; }
-        .image-preview img { width:100%; height:180px; object-fit:cover; display:block; }
-        .remove-image {
-            position:absolute; top:0.4rem; left:0.4rem;
-            background:rgba(255,59,48,0.9); color:#fff; border:none;
-            width:26px; height:26px; border-radius:50%; cursor:pointer;
-            font-size:0.9rem; display:flex; align-items:center; justify-content:center;
-        }
-        .btn-primary {
-            width:100%; padding:0.9rem; background:var(--primary); color:#fff;
-            border:none; border-radius:var(--radius-xs); font-family:inherit;
-            font-size:0.95rem; font-weight:800; cursor:pointer; transition:var(--transition);
-            margin-top:0.4rem; display:flex; align-items:center; justify-content:center; gap:0.4rem;
-        }
-        .btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,0.15); }
-        .btn-primary:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
-        .btn-danger {
-            width:100%; padding:0.9rem; background:#ff3b30; color:#fff;
-            border:none; border-radius:var(--radius-xs); font-family:inherit;
-            font-size:0.95rem; font-weight:800; cursor:pointer; transition:var(--transition); margin-top:0.6rem;
-        }
-        .btn-danger:hover { background:#ff453a; transform:translateY(-2px); box-shadow:0 6px 20px rgba(255,59,48,0.25); }
+/* Bottom bar: price + actions */
+.p-foot{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:.6rem .7rem;gap:.4rem;
+}
+.p-price{
+    font-size:.88rem;font-weight:900;color:var(--accent);
+    letter-spacing:-.02em;white-space:nowrap;
+}
+.p-actions{display:flex;gap:.3rem;flex-shrink:0}
+.p-btn{
+    width:30px;height:30px;border-radius:50%;
+    border:1.5px solid var(--line);background:var(--bg);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--ink-soft);transition:var(--t);
+    flex-shrink:0;
+}
+.p-btn:hover{background:var(--ink);color:#fff;border-color:var(--ink);transform:scale(1.1)}
+.p-btn.wa{background:rgba(34,197,94,.1);color:var(--green);border-color:rgba(34,197,94,.25)}
+.p-btn.wa:hover{background:var(--green);color:#fff;border-color:var(--green);box-shadow:0 2px 10px rgba(34,197,94,.3)}
 
-        /* ── TOASTS ── */
-        .toast-container {
-            position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%);
-            z-index:3000; display:flex; flex-direction:column; gap:0.4rem;
-            pointer-events:none; width:max-content; max-width:88vw;
-        }
-        .toast {
-            background:rgba(28,28,30,0.95); backdrop-filter:blur(20px);
-            color:#fff; padding:0.875rem 1.75rem; border-radius:100px;
-            font-weight:700; font-size:0.875rem;
-            animation:toastIn 0.3s ease, toastOut 0.3s ease 2.7s forwards;
-            text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.22);
-        }
-        .toast.success { border-left:3px solid #30d158; }
-        .toast.error { border-left:3px solid #ff3b30; }
-        @keyframes toastIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
-        @keyframes toastOut { to{opacity:0;transform:translateY(16px)} }
+/* Skeleton */
+.skel{
+    border-radius:var(--r-lg);aspect-ratio:3/4;
+    background:linear-gradient(90deg,#ebebeb 25%,#ddd 50%,#ebebeb 75%);
+    background-size:200% 100%;
+    animation:shimmer 1.3s infinite;
+}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-        ::-webkit-scrollbar { width:6px; }
-        ::-webkit-scrollbar-track { background:var(--bg); }
-        ::-webkit-scrollbar-thumb { background:var(--text-secondary); border-radius:3px; }
+/* Empty */
+.empty-state{
+    grid-column:1/-1;text-align:center;
+    padding:4rem 2rem;color:var(--muted);
+}
+.empty-state .ei{font-size:2.5rem;margin-bottom:1rem;opacity:.2}
+.empty-state h3{font-size:1.05rem;font-weight:800;color:var(--ink-soft);margin-bottom:.3rem}
 
-        @media(max-width:480px) {
-            .hero { padding:2.75rem 1.25rem 1.5rem; }
-            .hero h1 { font-size:1.75rem; }
-            .stat-number { font-size:1.15rem; }
-            .why-grid { grid-template-columns:1fr 1fr; }
-        }
+/* ═══════════════════════════════════════════
+   SERVICES SECTION
+═══════════════════════════════════════════ */
+.services-sec{
+    background:var(--ink);
+    padding:3rem 1.25rem;
+}
+.services-sec .sec-eyebrow{
+    font-size:.7rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+    color:rgba(255,255,255,.35);margin-bottom:.4rem;
+}
+.services-sec .sec-title{
+    font-size:clamp(1.35rem,4vw,2rem);font-weight:900;
+    color:#fff;margin-bottom:.4rem;letter-spacing:-.03em;
+}
+.services-sec .sec-sub{
+    font-size:.88rem;color:rgba(255,255,255,.4);
+    margin-bottom:2rem;max-width:480px;
+}
+.svc-grid{
+    display:grid;grid-template-columns:1fr 1fr;
+    gap:.875rem;max-width:720px;
+}
+@media(min-width:600px){.svc-grid{grid-template-columns:repeat(4,1fr)}}
+@media(min-width:768px){.services-sec{padding:3.5rem 2rem}}
+.svc-card{
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:var(--r-lg);padding:1.1rem .875rem;
+    transition:var(--t);
+}
+.svc-card:hover{background:rgba(255,255,255,.09);border-color:rgba(26,86,255,.4);transform:translateY(-3px)}
+.svc-icon{font-size:1.5rem;margin-bottom:.6rem}
+.svc-title{font-size:.82rem;font-weight:800;color:#fff;margin-bottom:.25rem}
+.svc-desc{font-size:.73rem;color:rgba(255,255,255,.4);line-height:1.55}
+
+/* ═══════════════════════════════════════════
+   WHY US
+═══════════════════════════════════════════ */
+.why-sec{
+    background:var(--bg);
+    padding:3rem 1.25rem;
+}
+.why-sec .sec-eyebrow{
+    font-size:.7rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--accent);margin-bottom:.4rem;
+}
+.why-sec .sec-title{
+    font-size:clamp(1.35rem,4vw,2rem);font-weight:900;
+    color:var(--ink);margin-bottom:.4rem;letter-spacing:-.03em;
+}
+.why-sec .sec-sub{
+    font-size:.88rem;color:var(--muted);
+    margin-bottom:2rem;max-width:480px;
+}
+.why-grid{
+    display:grid;grid-template-columns:1fr 1fr;
+    gap:.875rem;max-width:720px;
+}
+@media(min-width:600px){.why-grid{grid-template-columns:repeat(4,1fr)}}
+@media(min-width:768px){.why-sec{padding:3.5rem 2rem}}
+.why-card{
+    background:var(--card);border:1px solid var(--line);
+    border-radius:var(--r-lg);padding:1.1rem .875rem;
+    box-shadow:var(--shadow-sm);transition:var(--t);
+}
+.why-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:rgba(26,86,255,.2)}
+.why-icon{font-size:1.4rem;margin-bottom:.55rem}
+.why-title{font-size:.82rem;font-weight:800;color:var(--ink);margin-bottom:.2rem}
+.why-desc{font-size:.73rem;color:var(--muted);line-height:1.55}
+
+/* ═══════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════ */
+.site-footer{
+    background:var(--ink);color:rgba(255,255,255,.7);
+    padding:2.5rem 1.25rem 2rem;
+    text-align:center;position:relative;
+}
+.footer-logo{
+    font-size:1.25rem;font-weight:900;color:#fff;
+    letter-spacing:-.04em;margin-bottom:.3rem;
+}
+.footer-logo .dot{color:var(--gold)}
+.footer-tag{font-size:.78rem;color:rgba(255,255,255,.3);margin-bottom:1.5rem}
+.footer-links{
+    display:flex;justify-content:center;flex-wrap:wrap;
+    gap:1rem;margin-bottom:1.5rem;
+}
+.footer-link{
+    display:flex;align-items:center;gap:.4rem;
+    font-size:.82rem;font-weight:600;color:rgba(255,255,255,.55);
+    transition:var(--t);padding:.3rem;
+}
+.footer-link:hover{color:#fff}
+.footer-link svg{color:var(--accent)}
+.copy-num-btn{
+    background:rgba(255,255,255,.08);color:#fff;
+    border:1.5px solid rgba(255,255,255,.15);
+    padding:.75rem 1.75rem;border-radius:var(--r-pill);
+    font-family:inherit;font-size:.88rem;font-weight:700;
+    cursor:pointer;transition:var(--t);margin-top:1.25rem;
+}
+.copy-num-btn:hover{background:rgba(255,255,255,.16);transform:translateY(-1px)}
+.footer-copy{font-size:.72rem;color:rgba(255,255,255,.2);margin-top:1.25rem}
+.footer-admin-btn{
+    position:absolute;bottom:.75rem;left:50%;transform:translateX(-50%);
+    opacity:.04;background:none;border:none;cursor:pointer;
+    padding:.5rem;color:#fff;transition:opacity .3s;
+}
+.footer-admin-btn:hover{opacity:.4}
+.admin-mode .footer-admin-btn{opacity:.5;color:var(--gold)}
+@media(min-width:768px){.site-footer{padding:3rem 2rem 2.5rem}}
+
+/* ═══════════════════════════════════════════
+   MODALS
+═══════════════════════════════════════════ */
+.modal-bg{
+    position:fixed;inset:0;background:rgba(15,15,16,.5);
+    backdrop-filter:blur(12px);z-index:400;
+    display:none;align-items:center;justify-content:center;
+    padding:1.25rem;opacity:0;transition:opacity .3s;
+}
+.modal-bg.open{display:flex;opacity:1}
+.modal-box{
+    background:var(--card);border-radius:var(--r-lg);
+    width:100%;max-width:420px;max-height:92vh;overflow-y:auto;
+    box-shadow:var(--shadow-lg);border:1px solid var(--line);
+    transform:scale(.95) translateY(8px);
+    transition:transform .3s var(--ease);
+}
+.modal-bg.open .modal-box{transform:scale(1) translateY(0)}
+.modal-head{
+    padding:1.25rem 1.5rem;
+    display:flex;justify-content:space-between;align-items:center;
+    border-bottom:1px solid var(--line);
+    position:sticky;top:0;background:var(--card);z-index:2;
+}
+.modal-head h2{font-size:1.05rem;font-weight:900;letter-spacing:-.03em}
+.modal-close{
+    width:32px;height:32px;border-radius:50%;border:none;
+    background:var(--bg);display:flex;align-items:center;justify-content:center;
+    font-size:1.2rem;color:var(--muted);cursor:pointer;transition:var(--t);
+}
+.modal-close:hover{background:var(--ink);color:#fff;transform:rotate(90deg)}
+.modal-body{padding:1.5rem}
+.f-group{margin-bottom:1rem}
+.f-label{display:block;margin-bottom:.35rem;font-size:.78rem;font-weight:700;color:var(--muted)}
+.f-input,.f-select{
+    width:100%;padding:.8rem 1rem;
+    border:1.5px solid var(--line);border-radius:var(--r-md);
+    font-family:inherit;font-size:.95rem;background:var(--bg);
+    color:var(--ink);transition:var(--t);outline:none;
+}
+.f-input:focus,.f-select:focus{
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px rgba(26,86,255,.1);
+    background:#fff;
+}
+.file-wrap{position:relative;overflow:hidden;display:block;width:100%}
+.file-wrap input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;z-index:2}
+.file-label{
+    display:block;padding:.875rem;
+    border:2px dashed var(--line);border-radius:var(--r-md);
+    text-align:center;color:var(--muted);font-weight:600;font-size:.88rem;
+    transition:var(--t);background:var(--bg);
+}
+.file-wrap:hover .file-label{border-color:var(--accent);color:var(--accent);background:#eef3ff}
+.upload-prog{
+    display:none;margin-top:.6rem;padding:.6rem .875rem;
+    background:#eef3ff;border-radius:var(--r-md);
+    font-size:.8rem;font-weight:600;color:var(--accent);
+    align-items:center;gap:.4rem;
+}
+.upload-prog.on{display:flex}
+.spin{
+    width:14px;height:14px;border:2px solid rgba(26,86,255,.2);
+    border-top-color:var(--accent);border-radius:50%;
+    animation:sp .7s linear infinite;flex-shrink:0;
+}
+@keyframes sp{to{transform:rotate(360deg)}}
+.img-prev{margin-top:.875rem;border-radius:var(--r-md);overflow:hidden;display:none;border:1px solid var(--line);position:relative}
+.img-prev.on{display:block}
+.img-prev img{width:100%;height:160px;object-fit:cover;display:block}
+.rm-img{
+    position:absolute;top:.4rem;left:.4rem;
+    width:26px;height:26px;border-radius:50%;
+    background:rgba(239,68,68,.9);color:#fff;border:none;
+    display:flex;align-items:center;justify-content:center;
+    font-size:.85rem;cursor:pointer;
+}
+.btn-primary{
+    width:100%;padding:.9rem;background:var(--ink);color:#fff;
+    border:none;border-radius:var(--r-md);font-family:inherit;
+    font-size:.95rem;font-weight:800;cursor:pointer;transition:var(--t);
+    margin-top:.4rem;display:flex;align-items:center;justify-content:center;gap:.4rem;
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.18)}
+.btn-primary:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.btn-danger{
+    width:100%;padding:.9rem;background:var(--red);color:#fff;
+    border:none;border-radius:var(--r-md);font-family:inherit;
+    font-size:.95rem;font-weight:800;cursor:pointer;transition:var(--t);margin-top:.6rem;
+}
+.btn-danger:hover{background:#dc2626;transform:translateY(-2px);box-shadow:0 6px 16px rgba(239,68,68,.3)}
+
+/* ═══════════════════════════════════════════
+   TOASTS
+═══════════════════════════════════════════ */
+.toast-stack{
+    position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);
+    z-index:9999;display:flex;flex-direction:column;gap:.4rem;
+    pointer-events:none;width:max-content;max-width:88vw;
+}
+.toast{
+    background:rgba(15,15,16,.96);backdrop-filter:blur(16px);
+    color:#fff;padding:.85rem 1.6rem;border-radius:var(--r-pill);
+    font-size:.875rem;font-weight:700;text-align:center;
+    animation:tIn .3s var(--ease), tOut .3s var(--ease) 2.7s forwards;
+    box-shadow:0 8px 24px rgba(0,0,0,.25);
+}
+.toast.ok{border-inline-end:3px solid #22c55e}
+.toast.err{border-inline-end:3px solid var(--red)}
+@keyframes tIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes tOut{to{opacity:0;transform:translateY(14px)}}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--muted);border-radius:3px}
+
+/* ═══════════════════════════════════════════
+   SVG ICONS (inline reusable)
+═══════════════════════════════════════════ */
     </style>
 </head>
 <body>
 
-<header class="header">
-    <div class="logo">Malik <span>Phone</span></div>
-    <button class="menu-btn" id="menuBtn" aria-label="Menu">
+<!-- ──────────────────────────────────────────
+     HEADER
+────────────────────────────────────────── -->
+<header class="site-header">
+    <div class="site-logo">
+        <span class="dot"></span>
+        Malik Phone
+    </div>
+    <button class="menu-trigger" id="menuTrigger" aria-label="Menu">
         <span></span><span></span><span></span>
     </button>
 </header>
 
-<div class="menu-backdrop" id="menuBackdrop"></div>
-<nav class="mobile-menu" id="mobileMenu">
-    <a href="https://maps.app.goo.gl/qV1BKeBQPjcY6gmS9" target="_blank" rel="noopener noreferrer" class="menu-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+<!-- SCRIM -->
+<div class="drawer-scrim" id="drawerScrim"></div>
+
+<!-- DRAWER -->
+<nav class="drawer" id="drawer">
+    <a href="https://maps.app.goo.gl/qV1BKeBQPjcY6gmS9" target="_blank" rel="noopener noreferrer" class="drawer-nav-item">
+        <span class="ni">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </span>
         <span data-key="location">سێبەردان، هەولێر</span>
     </a>
-    <a href="tel:07504957293" class="menu-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+    <a href="tel:07504957293" class="drawer-nav-item">
+        <span class="ni">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </span>
         <span dir="ltr">0750 495 7293</span>
     </a>
-    <a href="https://wa.me/9647504957293?text=%D8%B3%DA%B5%D8%A7%D9%88%D8%8C%20%D9%BE%D8%B1%D8%B3%DB%8C%D8%A7%D8%B1%DB%8C%DA%A9%D9%85%20%D9%87%DB%95%DB%8C%DB%95" target="_blank" rel="noopener noreferrer" class="menu-item">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    <a href="https://wa.me/9647504957293?text=%D8%B3%DA%B5%D8%A7%D9%88%D8%8C%20%D9%BE%D8%B1%D8%B3%DB%8C%D8%A7%D8%B1%DB%8C%DA%A9%D9%85%20%D9%87%DB%95%DB%8C%DB%95" target="_blank" rel="noopener noreferrer" class="drawer-nav-item">
+        <span class="ni" style="color:#22c55e">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        </span>
         <span data-key="whatsapp">واتسئەپ</span>
     </a>
-    <div class="menu-divider"></div>
-    <div class="lang-switcher">
-        <button class="lang-btn active" data-lang="ku" onclick="switchLanguage('ku')">کوردی</button>
-        <button class="lang-btn" data-lang="ar" onclick="switchLanguage('ar')">العربية</button>
+    <div class="drawer-sep"></div>
+    <div class="lang-row">
+        <button class="lang-pill on" data-lang="ku" onclick="switchLang('ku')">کوردی</button>
+        <button class="lang-pill" data-lang="ar" onclick="switchLang('ar')">العربية</button>
     </div>
-    <div class="admin-lock-menu" onclick="openAdminAccess()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+    <div class="admin-drawer-link" onclick="openAdmin()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         <span data-key="admin">بەڕێوەبەر</span>
     </div>
 </nav>
 
-<!-- HERO -->
-<section class="hero">
+<!-- ──────────────────────────────────────────
+     HERO
+────────────────────────────────────────── -->
+<section class="hero" id="top">
     <div class="hero-inner">
-        <div class="hero-badge">
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="5"/></svg>
-            <span data-key="heroBadge">دوکانی فەرمی — هەولێر</span>
-        </div>
-        <h1 data-key="heroTitle">مالیک فۆن<br><span class="gold" data-key="heroGold">باشترین نرخ</span></h1>
-        <p data-key="heroSubtitle">کاڵای ئۆریجیناڵ بە گارانتی فەرمی</p>
-
-        <div class="hero-stats">
-            <div class="stat-card">
-                <div class="stat-number">10<span class="plus">+</span></div>
-                <div class="stat-label" data-key="stat1">ساڵی ئەزموون</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">500<span class="plus">+</span></div>
-                <div class="stat-label" data-key="stat2">کڕیاری دڵخۆش</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">100<span class="plus">%</span></div>
-                <div class="stat-label" data-key="stat3">ئۆریجیناڵ</div>
-            </div>
+        <!-- Changed: دوکانی فەرمی — سێبەردان (no "village", no blue button) -->
+        <div class="hero-eyebrow">
+            <span class="pulse"></span>
+            <span data-key="heroBadge">دوکانی فەرمی — سێبەردان</span>
         </div>
 
-        <div class="hero-ctas">
-            <a href="#products" class="btn-hero-primary" data-key="heroCtaShop">کاڵاکان ببینە</a>
-            <a href="https://wa.me/9647504957293?text=%D8%B3%DA%B5%D8%A7%D9%88%D8%8C%20%D9%BE%D8%B1%D8%B3%DB%8C%D8%A7%D8%B1%DB%8C%DA%A9%D9%85%20%D9%87%DB%95%DB%8C%DB%95" target="_blank" class="btn-hero-wa">
+        <h1 class="hero-title" data-key="heroTitle">
+            مالیک فۆن
+            <em data-key="heroGold">باشترین نرخ لە هەولێر</em>
+        </h1>
+        <p class="hero-sub" data-key="heroSub">خزمەتگوزاری پیشەیانە — کاڵای ئەمین — چارەسەری مۆبایل</p>
+
+        <!-- Only 1 honest stat -->
+        <div class="hero-stat">
+            <div class="hero-stat-num">10<span class="plus">+</span></div>
+            <div class="hero-stat-label" data-key="heroStatLabel">ساڵی ئەزموون<br>لە بازاڕی هەولێر</div>
+        </div>
+
+        <div class="hero-actions">
+            <a href="#products" class="btn-shop" data-key="btnShop">کاڵاکان ببینە</a>
+            <a href="https://wa.me/9647504957293?text=%D8%B3%DA%B5%D8%A7%D9%88%D8%8C%20%D9%BE%D8%B1%D8%B3%DB%8C%D8%A7%D8%B1%DB%8C%DA%A9%D9%85%20%D9%87%DB%95%DB%8C%DB%95" target="_blank" class="btn-wa-hero">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                <span data-key="heroCtaWa">واتسئەپ</span>
+                <span data-key="btnWa">واتسئەپ</span>
             </a>
-        </div>
-
-        <div class="scroll-hint">
-            <span data-key="scrollHint">کاڵاکان ببینە</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </div>
     </div>
 </section>
 
-<!-- SERVICE PILLS -->
-<div class="services-strip">
-    <div class="services-row">
-        <div class="service-pill"><span class="icon">🛠️</span><span data-key="svc1">چارەسەری مۆبایل</span></div>
-        <div class="service-pill"><span class="icon">🛡️</span><span data-key="svc2">گارانتی فەرمی</span></div>
-        <div class="service-pill"><span class="icon">📦</span><span data-key="svc3">مەواد دەگەیەنرێت</span></div>
-        <div class="service-pill"><span class="icon">⭐</span><span data-key="svc4">10+ ساڵ ئەزموون</span></div>
-        <div class="service-pill"><span class="icon">💬</span><span data-key="svc5">پشتگیری 24/7</span></div>
-        <div class="service-pill"><span class="icon">✅</span><span data-key="svc6">کاڵای ئۆریجیناڵ</span></div>
+<!-- ──────────────────────────────────────────
+     TRUST BAR (honest, no fake numbers)
+────────────────────────────────────────── -->
+<div class="trust-bar">
+    <div class="trust-row">
+        <div class="trust-item"><span class="trust-icon">🔧</span><span data-key="tr1">چارەسەری مۆبایل</span></div>
+        <div class="trust-item"><span class="trust-icon">📱</span><span data-key="tr2">فرۆشتنی مۆبایل</span></div>
+        <div class="trust-item"><span class="trust-icon">🏆</span><span data-key="tr3">10+ ساڵ ئەزموون</span></div>
+        <div class="trust-item"><span class="trust-icon">🤝</span><span data-key="tr4">خزمەتگوزاری باش</span></div>
+        <div class="trust-item"><span class="trust-icon">✅</span><span data-key="tr5">کاڵای ئەمین</span></div>
     </div>
 </div>
 
-<!-- FILTERS + GRID -->
-<div class="filters-container" id="products">
-    <div class="filter-group" id="mainFilters">
-        <button class="filter-btn active" data-filter="all" data-key="filterAll">هەمووی</button>
-        <button class="filter-btn" data-filter="phones" data-key="filterPhones">مۆبایل</button>
-        <button class="filter-btn" data-filter="sim" data-key="filterSim">سیمکارت</button>
-        <button class="filter-btn" data-filter="headsets" data-key="filterHeadsets">هێدسێت</button>
-        <button class="filter-btn" data-filter="others" data-key="filterOthers">کەلوپەلی تر</button>
+<!-- ──────────────────────────────────────────
+     FILTERS + PRODUCTS
+────────────────────────────────────────── -->
+<div class="filters-wrap" id="products">
+    <div class="filter-row" id="mainFilters">
+        <button class="filter-chip on" data-filter="all"      data-key="fAll">هەمووی</button>
+        <button class="filter-chip"    data-filter="phones"   data-key="fPhones">مۆبایل</button>
+        <button class="filter-chip"    data-filter="sim"      data-key="fSim">سیمکارت</button>
+        <button class="filter-chip"    data-filter="headsets" data-key="fHeadsets">هێدسێت</button>
+        <button class="filter-chip"    data-filter="others"   data-key="fOthers">کەلوپەلی تر</button>
     </div>
-    <div class="filter-group sub-filters" id="phoneSubFilters">
-        <button class="filter-btn active" data-subfilter="all" data-key="filterAllPhones">هەموو مۆبایلەکان</button>
-        <button class="filter-btn" data-subfilter="iphone" data-key="filterIphone">ئایفۆن</button>
-        <button class="filter-btn" data-subfilter="android" data-key="filterAndroid">ئەندرۆید</button>
-        <button class="filter-btn" data-subfilter="other" data-key="filterOtherPhone">تر</button>
+    <div class="filter-row sub-row" id="phoneSubFilters">
+        <button class="filter-chip on" data-subfilter="all"     data-key="fAllP">هەموو مۆبایلەکان</button>
+        <button class="filter-chip"    data-subfilter="iphone"  data-key="fIphone">ئایفۆن</button>
+        <button class="filter-chip"    data-subfilter="android" data-key="fAndroid">ئەندرۆید</button>
+        <button class="filter-chip"    data-subfilter="other"   data-key="fOtherP">تر</button>
     </div>
 </div>
 
-<main class="container">
+<div class="grid-wrap">
     <div class="products-grid" id="productsGrid">
-        <div class="skeleton"></div><div class="skeleton"></div>
-        <div class="skeleton"></div><div class="skeleton"></div>
+        <div class="skel"></div><div class="skel"></div>
+        <div class="skel"></div><div class="skel"></div>
     </div>
-</main>
+</div>
 
-<!-- WHY US -->
-<section class="why-us">
-    <div class="why-us-inner">
-        <div class="section-label" data-key="whyLabel">چەرا ئێمە؟</div>
-        <h2 class="section-title" data-key="whyTitle">دوکانی مالیک فۆن</h2>
-        <p class="section-sub" data-key="whySub">زیاتر لە ده ساڵ پیشەسازی، خزمەتگوزاری پیشەیانەی باشترین کوالیتی</p>
+<!-- ──────────────────────────────────────────
+     SERVICES
+────────────────────────────────────────── -->
+<section class="services-sec">
+    <div style="max-width:720px">
+        <div class="sec-eyebrow" data-key="svcEyebrow">خزمەتگوزارییەکانمان</div>
+        <h2 class="sec-title" data-key="svcTitle">چی دەتوانین بۆت بکەین؟</h2>
+        <p class="sec-sub" data-key="svcSub">ئێمە هەموو ئەوەی پێویستە بۆ مۆبایلەکەت دەمانکات</p>
+        <div class="svc-grid">
+            <div class="svc-card">
+                <div class="svc-icon">📱</div>
+                <div class="svc-title" data-key="svc1t">فرۆشتنی مۆبایل</div>
+                <div class="svc-desc" data-key="svc1d">نوێترین مۆبایلەکان بە نرخی باش و مناسب</div>
+            </div>
+            <div class="svc-card">
+                <div class="svc-icon">🔧</div>
+                <div class="svc-title" data-key="svc2t">چارەسەری مۆبایل</div>
+                <div class="svc-desc" data-key="svc2d">هەر کێشەیەک لە مۆبایلەکەت هەبێت ئێمە چارەی دەکەین</div>
+            </div>
+            <div class="svc-card">
+                <div class="svc-icon">🔍</div>
+                <div class="svc-title" data-key="svc3t">دیاریکردنی کێشە</div>
+                <div class="svc-desc" data-key="svc3d">دەشلێینین چ کێشەیەک لە مۆبایلەکەتدایە پێش کارکردن</div>
+            </div>
+            <div class="svc-card">
+                <div class="svc-icon">🤝</div>
+                <div class="svc-title" data-key="svc4t">یارمەتی هەڵبژاردن</div>
+                <div class="svc-desc" data-key="svc4d">یارمەتیت دەدەین باشترین مۆبایل بۆ پێداویستیت هەڵبژێری</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ──────────────────────────────────────────
+     WHY US
+────────────────────────────────────────── -->
+<section class="why-sec">
+    <div style="max-width:720px">
+        <div class="sec-eyebrow" data-key="whyEyebrow">چەرا ئێمە؟</div>
+        <h2 class="sec-title" data-key="whyTitle">دوکانی مالیک فۆن</h2>
+        <p class="sec-sub" data-key="whySub">زیاتر لە ده ساڵ پیشەسازی — خزمەتگوزاری ئەمین و پیشەیانە</p>
         <div class="why-grid">
             <div class="why-card">
-                <div class="why-icon">🔧</div>
-                <div class="why-title" data-key="why1t">چارەسەری مۆبایل</div>
-                <div class="why-text" data-key="why1d">ئەگەر مۆبایلەکەت کێشەی هەبێت ئێمە چارەی دەکەین بە نرخی گونجاو</div>
-            </div>
-            <div class="why-card">
                 <div class="why-icon">🏆</div>
-                <div class="why-title" data-key="why2t">10+ ساڵ ئەزموون</div>
-                <div class="why-text" data-key="why2d">زیاتر لە ده ساڵ لە بازاڕی تەکنەلۆجیا کار دەکەین لە هەولێر</div>
+                <div class="why-title" data-key="why1t">10+ ساڵ ئەزموون</div>
+                <div class="why-desc" data-key="why1d">زیاتر لە ده ساڵ لە بازاڕی هەولێر کار دەکەین</div>
             </div>
             <div class="why-card">
-                <div class="why-icon">📲</div>
-                <div class="why-title" data-key="why3t">کاڵا بەدەستبگرە</div>
-                <div class="why-text" data-key="why3d">ئەگەر دەتەوێت کاڵایەک بەدەست بگری پەیوەندیمان پێوەبکە ئێمە دەیبینینەوە</div>
+                <div class="why-icon">🤝</div>
+                <div class="why-title" data-key="why2t">کڕیار دووبارە دێنە</div>
+                <div class="why-desc" data-key="why2d">کڕیارەکانمان پەسەندمانن و دووبارە دێنەوە</div>
+            </div>
+            <div class="why-card">
+                <div class="why-icon">🔎</div>
+                <div class="why-title" data-key="why3t">ئەمانەتی</div>
+                <div class="why-desc" data-key="why3d">کاڵای ئەمین دەفرۆشین — ئەوەی دەبینی ئەوەی دەستت دەگات</div>
             </div>
             <div class="why-card">
                 <div class="why-icon">📍</div>
                 <div class="why-title" data-key="why4t">سەردانمان بکە</div>
-                <div class="why-text" data-key="why4d">سێبەردان، هەولێر — کردیم ئاسانترین شوێن بۆ کڕینی ئامێری تەکنەلۆجیا</div>
+                <div class="why-desc" data-key="why4d">سێبەردان، هەولێر — بۆ هەر پرسیارێک بێیمان</div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- FOOTER -->
-<footer class="footer">
-    <div class="footer-logo">Malik <span>Phone</span></div>
-    <div class="footer-tagline" data-key="footerTagline">باشترین نرخ · کاڵای ئۆریجیناڵ · خزمەتگوزاری باش</div>
+<!-- ──────────────────────────────────────────
+     FOOTER
+────────────────────────────────────────── -->
+<footer class="site-footer">
+    <div class="footer-logo">Malik<span class="dot">.</span>Phone</div>
+    <div class="footer-tag" data-key="footerTag">سێبەردان، هەولێر — دوکانی ئامێری تەکنەلۆجیا</div>
     <div class="footer-links">
         <a href="https://maps.app.goo.gl/qV1BKeBQPjcY6gmS9" target="_blank" rel="noopener noreferrer" class="footer-link">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
             <span data-key="location">سێبەردان، هەولێر</span>
         </a>
         <a href="https://wa.me/9647504957293?text=%D8%B3%DA%B5%D8%A7%D9%88%D8%8C%20%D9%BE%D8%B1%D8%B3%DB%8C%D8%A7%D8%B1%DB%8C%DA%A9%D9%85%20%D9%87%DB%95%DB%8C%DB%95" target="_blank" rel="noopener noreferrer" class="footer-link">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
             <span data-key="whatsapp">واتسئەپ</span>
         </a>
         <a href="tel:07504957293" class="footer-link">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
             <span dir="ltr">0750 495 7293</span>
         </a>
     </div>
-    <button class="copy-btn" id="copyPhoneBtn" data-key="copyBtn">کۆپی کردنی ژمارە</button>
+    <button class="copy-num-btn" id="copyBtn" data-key="copyBtn">کۆپی کردنی ژمارە</button>
     <div class="footer-copy">
-        <span data-key="copyright">مافی پارێزراوە</span> © <span id="year"></span> Malik Phone
+        <span data-key="copyright">مافی پارێزراوە</span> © <span id="yr"></span> Malik Phone
     </div>
-    <button class="admin-lock-footer" id="adminFooterBtn" aria-label="Admin">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+    <button class="footer-admin-btn" id="footerAdminBtn" aria-label="Admin">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     </button>
 </footer>
 
-<!-- Admin Login Modal -->
-<div class="modal-overlay" id="adminLoginModal">
-    <div class="modal">
-        <div class="modal-header">
-            <h2 class="modal-title" data-key="adminLoginTitle">چوونەژوورەوەی بەڕێوەبەر</h2>
+<!-- ──────────────────────────────────────────
+     MODAL: ADMIN LOGIN
+────────────────────────────────────────── -->
+<div class="modal-bg" id="loginModal">
+    <div class="modal-box">
+        <div class="modal-head">
+            <h2 data-key="loginTitle">چوونەژوورەوەی بەڕێوەبەر</h2>
             <button class="modal-close" id="closeLoginModal">&times;</button>
         </div>
         <div class="modal-body">
-            <div class="form-group">
-                <label class="form-label" data-key="passwordLabel">وشەی نهێنی</label>
-                <input type="password" class="form-input" id="adminPassword" data-placeholder="enterPassword">
+            <div class="f-group">
+                <label class="f-label" data-key="pwLabel">وشەی نهێنی</label>
+                <input type="password" class="f-input" id="adminPw" data-placeholder="enterPw">
             </div>
             <button class="btn-primary" id="loginBtn" data-key="loginBtn">چوونەژوورەوە</button>
         </div>
     </div>
 </div>
 
-<!-- Admin Panel Modal -->
-<div class="modal-overlay" id="adminPanelModal">
-    <div class="modal">
-        <div class="modal-header">
-            <h2 class="modal-title" data-key="adminPanelTitle">پانێلی بەڕێوەبەر</h2>
+<!-- ──────────────────────────────────────────
+     MODAL: ADMIN PANEL
+────────────────────────────────────────── -->
+<div class="modal-bg" id="panelModal">
+    <div class="modal-box">
+        <div class="modal-head">
+            <h2 data-key="panelTitle">پانێلی بەڕێوەبەر</h2>
             <button class="modal-close" id="closePanelModal">&times;</button>
         </div>
         <div class="modal-body">
-            <div class="form-group">
-                <label class="form-label" data-key="productNameLabel">ناوی کاڵا</label>
-                <input type="text" class="form-input" id="productName" data-placeholder="enterProductName">
+            <div class="f-group">
+                <label class="f-label" data-key="nameLabel">ناوی کاڵا</label>
+                <input type="text" class="f-input" id="pName" data-placeholder="namePh">
             </div>
-            <div class="form-group">
-                <label class="form-label" data-key="priceLabel">نرخ (IQD)</label>
-                <!-- FIX: type="text" + inputmode="numeric" so mobile keyboard is numeric but no spinner truncation -->
-                <input type="text" inputmode="numeric" class="form-input" id="productPrice" data-placeholder="enterPrice" autocomplete="off">
+            <div class="f-group">
+                <label class="f-label" data-key="priceLabel">نرخ (IQD)</label>
+                <input type="text" inputmode="numeric" class="f-input" id="pPrice"
+                       data-placeholder="pricePh" autocomplete="off">
             </div>
-            <div class="form-group">
-                <label class="form-label" data-key="categoryLabel">هاوپۆل</label>
-                <select class="form-select" id="productCategory">
-                    <option value="phones" data-key="optPhone">مۆبایل</option>
-                    <option value="sim" data-key="optSim">سیمکارت</option>
+            <div class="f-group">
+                <label class="f-label" data-key="catLabel">هاوپۆل</label>
+                <select class="f-select" id="pCat">
+                    <option value="phones"   data-key="optPhone">مۆبایل</option>
+                    <option value="sim"      data-key="optSim">سیمکارت</option>
                     <option value="headsets" data-key="optHeadset">هێدسێت</option>
-                    <option value="others" data-key="optOther">کەلوپەلی تر</option>
+                    <option value="others"   data-key="optOther">کەلوپەلی تر</option>
                 </select>
             </div>
-            <div class="form-group" id="phoneTypeGroup">
-                <label class="form-label" data-key="phoneTypeLabel">جۆری مۆبایل</label>
-                <select class="form-select" id="phoneType">
+            <div class="f-group" id="phoneTypeRow">
+                <label class="f-label" data-key="ptLabel">جۆری مۆبایل</label>
+                <select class="f-select" id="pType">
                     <option value="iphone">ئایفۆن</option>
                     <option value="android">ئەندرۆید</option>
                     <option value="other">تر</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label class="form-label" data-key="imageUploadLabel">وێنەی کاڵا</label>
-                <div class="file-input-wrapper">
-                    <input type="file" id="productImage" accept="image/*">
-                    <div class="file-input-label" id="fileLabel">
-                        <span data-key="chooseImage">وێنە هەڵبژێرە</span>
+            <div class="f-group">
+                <label class="f-label" data-key="imgLabel">وێنەی کاڵا</label>
+                <div class="file-wrap">
+                    <input type="file" id="pImg" accept="image/*">
+                    <div class="file-label" id="fileLabel">
+                        <span data-key="chooseImg">وێنە هەڵبژێرە</span>
                     </div>
                 </div>
-                <div class="upload-progress" id="uploadProgress">
-                    <div class="upload-spinner"></div>
-                    <span id="uploadProgressText">ئەپڵۆد دەکرێت...</span>
+                <div class="upload-prog" id="uploadProg">
+                    <div class="spin"></div>
+                    <span id="uploadTxt">ئەپڵۆد دەکرێت...</span>
                 </div>
-                <div class="image-preview" id="imagePreview">
-                    <img src="" alt="Preview" id="previewImg">
-                    <button type="button" class="remove-image" id="removeImageBtn">×</button>
+                <div class="img-prev" id="imgPrev">
+                    <img src="" alt="" id="prevImg">
+                    <button type="button" class="rm-img" id="rmImg">×</button>
                 </div>
             </div>
-            <button class="btn-primary" id="addProductBtn" data-key="addProductBtn">زیادکردنی کاڵا</button>
-            <button class="btn-danger" id="logoutBtn" data-key="logoutBtn">دەرچوون لە پانێل</button>
+            <button class="btn-primary" id="addBtn" data-key="addBtn">زیادکردنی کاڵا</button>
+            <button class="btn-danger"  id="logoutBtn" data-key="logoutBtn">دەرچوون لە پانێل</button>
         </div>
     </div>
 </div>
 
-<div class="toast-container" id="toastContainer"></div>
+<div class="toast-stack" id="toastStack"></div>
 
+<!-- ──────────────────────────────────────────
+     JAVASCRIPT
+────────────────────────────────────────── -->
 <script>
-// ==================== SUPABASE ====================
-const SUPABASE_URL = 'https://exkwrhfxspfuuoixvfqh.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4a3dyaGZ4c3BmdXVvaXh2ZnFoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NjYzNzUsImV4cCI6MjA5MjI0MjM3NX0.jp9lEoVeR3ZmO4ug8gqqWm4zcvJnw5jkKuJduREj4iI';
+/* ── Supabase ── */
+const SUPABASE_URL  = 'https://exkwrhfxspfuuoixvfqh.supabase.co';
+const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4a3dyaGZ4c3BmdXVvaXh2ZnFoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NjYzNzUsImV4cCI6MjA5MjI0MjM3NX0.jp9lEoVeR3ZmO4ug8gqqWm4zcvJnw5jkKuJduREj4iI';
 const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ==================== CONSTANTS ====================
-const ADMIN_PASSWORD = 'bazhdar658365';
-const ADMIN_SESSION_KEY = 'malik_phone_admin_v5';
-const PHONE_NUMBER = '9647504957293';
-const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
-const BUCKET = 'images';
+/* ── Config ── */
+const ADMIN_PW   = 'bazhdar658365';
+const SK         = 'malik_admin_v5';
+const PHONE      = '9647504957293';
+const BUCKET     = 'images';
+const TTL        = 30 * 24 * 60 * 60 * 1000;
 
-// ==================== STATE ====================
-let currentLang = 'ku';
-let isAdmin = false;
-let currentFilter = 'all';
-let currentSubFilter = 'all';
-let selectedFile = null;
+/* ── State ── */
+let lang          = 'ku';
+let isAdmin       = false;
+let filter        = 'all';
+let subFilter     = 'all';
+let pickedFile    = null;
 
-// ==================== TRANSLATIONS ====================
-const translations = {
-    ku: {
-        heroBadge: 'دوکانی فەرمی — هەولێر',
-        heroTitle: 'مالیک فۆن',
-        heroGold: 'باشترین نرخ',
-        heroSubtitle: 'کاڵای ئۆریجیناڵ بە گارانتی فەرمی',
-        heroCtaShop: 'کاڵاکان ببینە',
-        heroCtaWa: 'واتسئەپ',
-        scrollHint: 'ئاشکراکردن',
-        stat1: 'ساڵی ئەزموون',
-        stat2: 'کڕیاری دڵخۆش',
-        stat3: 'ئۆریجیناڵ',
-        svc1: 'چارەسەری مۆبایل',
-        svc2: 'گارانتی فەرمی',
-        svc3: 'مەواد دەگەیەنرێت',
-        svc4: '10+ ساڵ ئەزموون',
-        svc5: 'پشتگیری 24/7',
-        svc6: 'کاڵای ئۆریجیناڵ',
-        whyLabel: 'چەرا ئێمە؟',
-        whyTitle: 'دوکانی مالیک فۆن',
-        whySub: 'زیاتر لە ده ساڵ پیشەسازی، خزمەتگوزاری پیشەیانەی باشترین کوالیتی',
-        why1t: 'چارەسەری مۆبایل', why1d: 'ئەگەر مۆبایلەکەت کێشەی هەبێت ئێمە چارەی دەکەین بە نرخی گونجاو',
-        why2t: '10+ ساڵ ئەزموون', why2d: 'زیاتر لە ده ساڵ لە بازاڕی تەکنەلۆجیا کار دەکەین لە هەولێر',
-        why3t: 'کاڵا بەدەستبگرە', why3d: 'ئەگەر دەتەوێت کاڵایەک بەدەست بگری پەیوەندیمان پێوەبکە',
-        why4t: 'سەردانمان بکە', why4d: 'سێبەردان، هەولێر — باشترین شوێن بۆ کڕینی ئامێری تەکنەلۆجیا',
-        footerTagline: 'باشترین نرخ · کاڵای ئۆریجیناڵ · خزمەتگوزاری باش',
-        location: 'سێبەردان، هەولێر',
-        whatsapp: 'واتسئەپ',
-        admin: 'بەڕێوەبەر',
-        filterAll: 'هەمووی', filterPhones: 'مۆبایل', filterSim: 'سیمکارت',
-        filterHeadsets: 'هێدسێت', filterOthers: 'کەلوپەلی تر',
-        filterAllPhones: 'هەموو مۆبایلەکان', filterIphone: 'ئایفۆن',
-        filterAndroid: 'ئەندرۆید', filterOtherPhone: 'تر',
-        copyright: 'مافی پارێزراوە',
-        copyBtn: 'کۆپی کردنی ژمارە',
-        adminLoginTitle: 'چوونەژوورەوەی بەڕێوەبەر',
-        passwordLabel: 'وشەی نهێنی', enterPassword: 'وشەی نهێنی بنووسە',
-        loginBtn: 'چوونەژوورەوە',
-        adminPanelTitle: 'پانێلی بەڕێوەبەر',
-        productNameLabel: 'ناوی کاڵا', enterProductName: 'ناوی کاڵا بنووسە',
-        priceLabel: 'نرخ (IQD)', enterPrice: 'نرخ بنووسە — بۆ نموونە: 400,000',
-        categoryLabel: 'هاوپۆل',
-        optPhone: 'مۆبایل', optSim: 'سیمکارت', optHeadset: 'هێدسێت', optOther: 'کەلوپەلی تر',
-        phoneTypeLabel: 'جۆری مۆبایل',
-        imageUploadLabel: 'وێنەی کاڵا', chooseImage: 'وێنە هەڵبژێرە',
-        addProductBtn: 'زیادکردنی کاڵا', logoutBtn: 'دەرچوون لە پانێل',
-        loginSuccess: '✓ چوونەژوورەوە سەرکەوتوو بوو',
-        loginFailed: '✗ وشەی نهێنی هەڵەیە',
-        logoutSuccess: 'دەرچوون سەرکەوتوو بوو',
-        productAdded: '✓ کاڵا بە سەرکەوتوویی زیاد کرا',
-        productDeleted: 'کاڵا سڕایەوە',
-        phoneCopied: '✓ ژمارە کۆپی کرا',
-        emptyTitle: 'هیچ کاڵایەک نەدۆزرایەوە',
-        emptyText: 'تکایە فلتەرەکە بگۆڕە یان دواتر هەوڵ بدەوە',
-        deleteConfirm: 'دڵنیای لە سڕینەوەی ئەم کاڵایە؟',
-        uploading: 'ئەپڵۆد دەکرێت...',
-        uploadError: '✗ کێشە لە ئەپڵۆدکردن',
-        fillAll: 'تکایە هەموو خانەکان پڕبکەرەوە',
-        chooseImg: 'تکایە وێنە هەڵبژێرە'
-    },
-    ar: {
-        heroBadge: 'متجر رسمي — أربيل',
-        heroTitle: 'مالیك فون',
-        heroGold: 'أفضل الأسعار',
-        heroSubtitle: 'منتجات أصلية 100% مع ضمان رسمي',
-        heroCtaShop: 'تصفح المنتجات',
-        heroCtaWa: 'واتساب',
-        scrollHint: 'اكتشف',
-        stat1: 'سنة خبرة',
-        stat2: 'عميل سعيد',
-        stat3: 'أصلي',
-        svc1: 'إصلاح الهواتف',
-        svc2: 'ضمان رسمي',
-        svc3: 'توصيل متاح',
-        svc4: 'خبرة 10+ سنوات',
-        svc5: 'دعم 24/7',
-        svc6: 'منتجات أصلية',
-        whyLabel: 'لماذا نحن؟',
-        whyTitle: 'متجر مالیك فون',
-        whySub: 'أكثر من عشر سنوات من الخبرة في مجال التكنولوجيا بأعلى جودة',
-        why1t: 'إصلاح الهواتف', why1d: 'إذا كان هاتفك به مشكلة، يمكننا إصلاحه بسعر مناسب',
-        why2t: 'خبرة +10 سنوات', why2d: 'أكثر من عشر سنوات في سوق التكنولوجيا في أربيل',
-        why3t: 'احصل على منتج', why3d: 'إذا أردت منتجاً معيناً تواصل معنا وسنجده لك',
-        why4t: 'زورونا', why4d: 'سيبيردان، أربيل — الوجهة الأولى لشراء الأجهزة التقنية',
-        footerTagline: 'أفضل الأسعار · منتجات أصلية · خدمة ممتازة',
-        location: 'سيبيردان، أربيل',
-        whatsapp: 'واتساب',
-        admin: 'لوحة التحكم',
-        filterAll: 'الكل', filterPhones: 'الهواتف', filterSim: 'شرائح الاتصال',
-        filterHeadsets: 'سماعات الرأس', filterOthers: 'الإكسسوارات',
-        filterAllPhones: 'جميع الهواتف', filterIphone: 'آيفون',
-        filterAndroid: 'أندرويد', filterOtherPhone: 'أخرى',
-        copyright: 'جميع الحقوق محفوظة',
-        copyBtn: 'نسخ الرقم',
-        adminLoginTitle: 'تسجيل دخول المشرف',
-        passwordLabel: 'كلمة المرور', enterPassword: 'أدخل كلمة المرور',
-        loginBtn: 'تسجيل الدخول',
-        adminPanelTitle: 'لوحة التحكم',
-        productNameLabel: 'اسم المنتج', enterProductName: 'أدخل اسم المنتج',
-        priceLabel: 'السعر (د.ع)', enterPrice: 'مثال: 400,000',
-        categoryLabel: 'الفئة',
-        optPhone: 'هاتف', optSim: 'شريحة', optHeadset: 'سماعة', optOther: 'إكسسوار',
-        phoneTypeLabel: 'نوع الهاتف',
-        imageUploadLabel: 'صورة المنتج', chooseImage: 'اختر صورة',
-        addProductBtn: 'إضافة منتج', logoutBtn: 'تسجيل الخروج',
-        loginSuccess: '✓ تم تسجيل الدخول',
-        loginFailed: '✗ كلمة المرور غير صحيحة',
-        logoutSuccess: 'تم تسجيل الخروج',
-        productAdded: '✓ تم إضافة المنتج',
-        productDeleted: 'تم حذف المنتج',
-        phoneCopied: '✓ تم نسخ الرقم',
-        emptyTitle: 'لا توجد منتجات',
-        emptyText: 'يرجى تغيير الفلتر أو المحاولة لاحقاً',
-        deleteConfirm: 'هل أنت متأكد من حذف هذا المنتج؟',
-        uploading: 'جاري الرفع...',
-        uploadError: '✗ خطأ في رفع الصورة',
-        fillAll: 'يرجى ملء جميع الحقول',
-        chooseImg: 'يرجى اختيار صورة'
-    }
+/* ══════════════════════════════════════
+   TRANSLATIONS
+══════════════════════════════════════ */
+const T = {
+  ku:{
+    heroBadge:'دوکانی فەرمی — سێبەردان',
+    heroTitle:'مالیک فۆن',heroGold:'باشترین نرخ لە هەولێر',
+    heroSub:'خزمەتگوزاری پیشەیانە — کاڵای ئەمین — چارەسەری مۆبایل',
+    heroStatLabel:'ساڵی ئەزموون\nلە بازاڕی هەولێر',
+    btnShop:'کاڵاکان ببینە',btnWa:'واتسئەپ',
+    tr1:'چارەسەری مۆبایل',tr2:'فرۆشتنی مۆبایل',tr3:'10+ ساڵ ئەزموون',tr4:'خزمەتگوزاری باش',tr5:'کاڵای ئەمین',
+    fAll:'هەمووی',fPhones:'مۆبایل',fSim:'سیمکارت',fHeadsets:'هێدسێت',fOthers:'کەلوپەلی تر',
+    fAllP:'هەموو مۆبایلەکان',fIphone:'ئایفۆن',fAndroid:'ئەندرۆید',fOtherP:'تر',
+    svcEyebrow:'خزمەتگوزارییەکانمان',svcTitle:'چی دەتوانین بۆت بکەین؟',
+    svcSub:'ئێمە هەموو ئەوەی پێویستە بۆ مۆبایلەکەت دەمانکات',
+    svc1t:'فرۆشتنی مۆبایل',svc1d:'نوێترین مۆبایلەکان بە نرخی باش و مناسب',
+    svc2t:'چارەسەری مۆبایل',svc2d:'هەر کێشەیەک لە مۆبایلەکەت هەبێت ئێمە چارەی دەکەین',
+    svc3t:'دیاریکردنی کێشە',svc3d:'دەشلێینین چ کێشەیەک لە مۆبایلەکەتدایە پێش کارکردن',
+    svc4t:'یارمەتی هەڵبژاردن',svc4d:'یارمەتیت دەدەین باشترین مۆبایل بۆ پێداویستیت هەڵبژێری',
+    whyEyebrow:'چەرا ئێمە؟',whyTitle:'دوکانی مالیک فۆن',
+    whySub:'زیاتر لە ده ساڵ پیشەسازی — خزمەتگوزاری ئەمین و پیشەیانە',
+    why1t:'10+ ساڵ ئەزموون',why1d:'زیاتر لە ده ساڵ لە بازاڕی هەولێر کار دەکەین',
+    why2t:'کڕیار دووبارە دێنە',why2d:'کڕیارەکانمان پەسەندمانن و دووبارە دێنەوە',
+    why3t:'ئەمانەتی',why3d:'کاڵای ئەمین دەفرۆشین — ئەوەی دەبینی ئەوەی دەستت دەگات',
+    why4t:'سەردانمان بکە',why4d:'سێبەردان، هەولێر — بۆ هەر پرسیارێک بێیمان',
+    footerTag:'سێبەردان، هەولێر — دوکانی ئامێری تەکنەلۆجیا',
+    location:'سێبەردان، هەولێر',whatsapp:'واتسئەپ',admin:'بەڕێوەبەر',
+    copyBtn:'کۆپی کردنی ژمارە',copyright:'مافی پارێزراوە',
+    loginTitle:'چوونەژوورەوەی بەڕێوەبەر',pwLabel:'وشەی نهێنی',enterPw:'وشەی نهێنی بنووسە',loginBtn:'چوونەژوورەوە',
+    panelTitle:'پانێلی بەڕێوەبەر',nameLabel:'ناوی کاڵا',namePh:'ناوی کاڵا بنووسە',
+    priceLabel:'نرخ (IQD)',pricePh:'بۆ نموونە: 400,000',catLabel:'هاوپۆل',
+    optPhone:'مۆبایل',optSim:'سیمکارت',optHeadset:'هێدسێت',optOther:'کەلوپەلی تر',
+    ptLabel:'جۆری مۆبایل',imgLabel:'وێنەی کاڵا',chooseImg:'وێنە هەڵبژێرە',
+    addBtn:'زیادکردنی کاڵا',logoutBtn:'دەرچوون لە پانێل',
+    /* toasts */
+    loginOk:'✓ چوونەژوورەوە سەرکەوتوو بوو',loginFail:'✗ وشەی نهێنی هەڵەیە',
+    logoutOk:'دەرچوون سەرکەوتوو بوو',added:'✓ کاڵا زیاد کرا',deleted:'کاڵا سڕایەوە',
+    copied:'✓ ژمارە کۆپی کرا',fillAll:'تکایە هەموو خانەکان پڕبکەرەوە',
+    chooseImgErr:'تکایە وێنە هەڵبژێرە',uploadErr:'✗ کێشە لە ئەپڵۆدکردن',uploading:'ئەپڵۆد دەکرێت...',
+    delConfirm:'دڵنیای لە سڕینەوەی ئەم کاڵایە؟',
+    emptyT:'هیچ کاڵایەک نەدۆزرایەوە',emptyD:'تکایە فلتەرەکە بگۆڕە',
+    phone_cat:'مۆبایل',sim_cat:'سیمکارت',headsets_cat:'هێدسێت',others_cat:'کەلوپەل',
+  },
+  ar:{
+    heroBadge:'متجر رسمي — سيبيردان',
+    heroTitle:'مالیك فون',heroGold:'أفضل الأسعار في أربيل',
+    heroSub:'خدمة احترافية — منتجات موثوقة — إصلاح هواتف',
+    heroStatLabel:'سنة خبرة\nفي سوق أربيل',
+    btnShop:'تصفح المنتجات',btnWa:'واتساب',
+    tr1:'إصلاح الهواتف',tr2:'بيع الهواتف',tr3:'خبرة 10+ سنوات',tr4:'خدمة جيدة',tr5:'منتجات موثوقة',
+    fAll:'الكل',fPhones:'الهواتف',fSim:'شرائح',fHeadsets:'سماعات',fOthers:'إكسسوارات',
+    fAllP:'جميع الهواتف',fIphone:'آيفون',fAndroid:'أندرويد',fOtherP:'أخرى',
+    svcEyebrow:'خدماتنا',svcTitle:'ماذا نستطيع أن نقدم لك؟',
+    svcSub:'نقدم كل ما يحتاجه هاتفك',
+    svc1t:'بيع الهواتف',svc1d:'أحدث الهواتف بأسعار مناسبة',
+    svc2t:'إصلاح الهواتف',svc2d:'أي مشكلة في هاتفك نحلها لك',
+    svc3t:'تشخيص الأعطال',svc3d:'نكشف المشكلة قبل البدء بالإصلاح',
+    svc4t:'المساعدة في الاختيار',svc4d:'نساعدك تختار أفضل هاتف يناسبك',
+    whyEyebrow:'لماذا نحن؟',whyTitle:'متجر مالیك فون',
+    whySub:'أكثر من عشر سنوات من الخبرة والخدمة الموثوقة',
+    why1t:'خبرة +10 سنوات',why1d:'أكثر من عشر سنوات في سوق أربيل',
+    why2t:'عملاء يعودون',why2d:'عملاؤنا راضون ويعودون إلينا مرة أخرى',
+    why3t:'أمانة وصدق',why3d:'نبيع ما تراه فعلاً - لا مفاجآت',
+    why4t:'زورونا',why4d:'سيبيردان، أربيل — لأي استفسار تفضل بزيارتنا',
+    footerTag:'سيبيردان، أربيل — متجر الأجهزة التقنية',
+    location:'سيبيردان، أربيل',whatsapp:'واتساب',admin:'لوحة التحكم',
+    copyBtn:'نسخ الرقم',copyright:'جميع الحقوق محفوظة',
+    loginTitle:'تسجيل دخول المشرف',pwLabel:'كلمة المرور',enterPw:'أدخل كلمة المرور',loginBtn:'دخول',
+    panelTitle:'لوحة التحكم',nameLabel:'اسم المنتج',namePh:'أدخل اسم المنتج',
+    priceLabel:'السعر (د.ع)',pricePh:'مثال: 400,000',catLabel:'الفئة',
+    optPhone:'هاتف',optSim:'شريحة',optHeadset:'سماعة',optOther:'إكسسوار',
+    ptLabel:'نوع الهاتف',imgLabel:'صورة المنتج',chooseImg:'اختر صورة',
+    addBtn:'إضافة منتج',logoutBtn:'تسجيل الخروج',
+    loginOk:'✓ تم تسجيل الدخول',loginFail:'✗ كلمة المرور خاطئة',
+    logoutOk:'تم تسجيل الخروج',added:'✓ تمت إضافة المنتج',deleted:'تم حذف المنتج',
+    copied:'✓ تم نسخ الرقم',fillAll:'يرجى ملء جميع الحقول',
+    chooseImgErr:'يرجى اختيار صورة',uploadErr:'✗ خطأ في رفع الصورة',uploading:'جاري الرفع...',
+    delConfirm:'هل أنت متأكد من الحذف؟',
+    emptyT:'لا توجد منتجات',emptyD:'يرجى تغيير الفلتر',
+    phone_cat:'هاتف',sim_cat:'شريحة',headsets_cat:'سماعة',others_cat:'إكسسوار',
+  }
 };
+function t(k){ return T[lang][k] || k }
 
-// ==================== SUPABASE FUNCTIONS ====================
-// TABLE: posts (id bigint auto, created_at auto, title text, description text, image_url text)
-// title = product name | description = JSON{price,category,phone_type} | image_url = url
-
-async function fetchProducts() {
-    const { data, error } = await db.from('posts').select('*').order('created_at', { ascending: false });
-    if (error) { console.error('Fetch error:', error); return []; }
-    return (data || []).map(post => {
-        let extra = {};
-        try { extra = JSON.parse(post.description || '{}'); } catch(e) {}
-        return {
-            id:         post.id,
-            created_at: post.created_at,
-            name:       post.title,
-            price:      Number(extra.price)   || 0,
-            category:   extra.category        || 'others',
-            phone_type: extra.phone_type      || null,
-            image_url:  post.image_url
-        };
+/* ══════════════════════════════════════
+   DB FUNCTIONS  (posts table)
+══════════════════════════════════════ */
+async function fetchProducts(){
+    const {data,error} = await db.from('posts').select('*').order('created_at',{ascending:false});
+    if(error){console.error(error);return[]}
+    return (data||[]).map(row=>{
+        let x={};try{x=JSON.parse(row.description||'{}')}catch(e){}
+        return{id:row.id,name:row.title,price:Number(x.price)||0,
+               category:x.category||'others',phone_type:x.phone_type||null,
+               image_url:row.image_url,created_at:row.created_at}
     });
 }
-
-async function insertProduct(product) {
-    const postRow = {
-        title:       product.name,
-        description: JSON.stringify({ price: product.price, category: product.category, phone_type: product.phone_type || null }),
-        image_url:   product.image_url
-    };
-    const { data, error } = await db.from('posts').insert([postRow]).select();
-    if (error) throw error;
-    return data[0];
+async function insertProduct(p){
+    const row={title:p.name,description:JSON.stringify({price:p.price,category:p.category,phone_type:p.phone_type||null}),image_url:p.image_url};
+    const {data,error}=await db.from('posts').insert([row]).select();
+    if(error)throw error;return data[0];
 }
-
-async function deleteProduct(productId) {
-    const { data: post } = await db.from('posts').select('image_url').eq('id', productId).single();
-    if (post?.image_url) {
-        const parts = post.image_url.split(`/object/public/${BUCKET}/`);
-        const filePath = parts[1] ? decodeURIComponent(parts[1]) : null;
-        if (filePath) await db.storage.from(BUCKET).remove([filePath]);
+async function deleteProduct(id){
+    const {data:row}=await db.from('posts').select('image_url').eq('id',id).single();
+    if(row?.image_url){
+        const parts=row.image_url.split(`/object/public/${BUCKET}/`);
+        const fp=parts[1]?decodeURIComponent(parts[1]):null;
+        if(fp)await db.storage.from(BUCKET).remove([fp]);
     }
-    const { error } = await db.from('posts').delete().eq('id', productId);
-    if (error) throw error;
+    const {error}=await db.from('posts').delete().eq('id',id);
+    if(error)throw error;
+}
+async function uploadImage(file){
+    const ext=file.name.split('.').pop();
+    const fn=`${Date.now()}_${Math.random().toString(36).substr(2,8)}.${ext}`;
+    const {error}=await db.storage.from(BUCKET).upload(fn,file,{cacheControl:'3600',upsert:false});
+    if(error)throw error;
+    return db.storage.from(BUCKET).getPublicUrl(fn).data.publicUrl;
 }
 
-async function uploadImage(file) {
-    const ext = file.name.split('.').pop();
-    const fileName = `${Date.now()}_${Math.random().toString(36).substr(2,9)}.${ext}`;
-    const { error } = await db.storage.from(BUCKET).upload(fileName, file, { cacheControl:'3600', upsert:false });
-    if (error) throw error;
-    const { data } = db.storage.from(BUCKET).getPublicUrl(fileName);
-    return data.publicUrl;
+/* ══════════════════════════════════════
+   PRICE HELPERS
+══════════════════════════════════════ */
+function parsePrice(v){return parseInt(String(v).replace(/[^0-9]/g,''),10)||0}
+function fmtPrice(v){
+    if(!v||v===0)return'—';
+    return new Intl.NumberFormat('en-US').format(Number(v))+' IQD';
+}
+function liveFormatPrice(inp){
+    const n=inp.value.replace(/[^0-9]/g,'');
+    inp.value=n?new Intl.NumberFormat('en-US').format(parseInt(n,10)):'';
 }
 
-// ==================== UTILITIES ====================
-function t(key) { return translations[currentLang][key] || key; }
-
-// FIX: parse price correctly — strip commas, $, spaces before parseInt
-function parsePrice(rawVal) {
-    const cleaned = String(rawVal).replace(/[^0-9]/g, '');
-    return cleaned ? parseInt(cleaned, 10) : 0;
+/* ══════════════════════════════════════
+   UTILITIES
+══════════════════════════════════════ */
+function esc(s){
+    if(!s)return'';
+    const d=document.createElement('div');d.textContent=s;return d.innerHTML;
+}
+function toast(msg,type=''){
+    const c=document.getElementById('toastStack');
+    const el=document.createElement('div');
+    el.className='toast'+(type?' '+type:'');
+    el.textContent=T[lang][msg]||msg;
+    c.appendChild(el);
+    setTimeout(()=>{if(el.parentNode)el.remove()},3000);
 }
 
-// Format for display: 400000 → "400,000 IQD"
-function formatPrice(price) {
-    if (!price || price === 0) return '—';
-    return new Intl.NumberFormat('en-US').format(Number(price)) + ' IQD';
+/* ══════════════════════════════════════
+   LABELS
+══════════════════════════════════════ */
+function catLabel(c){
+    const m={phones:t('phone_cat'),sim:t('sim_cat'),headsets:t('headsets_cat'),others:t('others_cat')};
+    return m[c]||c;
+}
+function ptLabel(p){
+    const m={iphone:'iPhone',android:lang==='ku'?'ئەندرۆید':'أندرويد',other:lang==='ku'?'تر':'أخرى'};
+    return m[p]||p;
 }
 
-// Live-format price input as user types
-function formatPriceInput(input) {
-    const raw = input.value.replace(/[^0-9]/g, '');
-    if (!raw) { input.value = ''; return; }
-    input.value = new Intl.NumberFormat('en-US').format(parseInt(raw, 10));
-}
+/* ══════════════════════════════════════
+   SVG ICONS
+══════════════════════════════════════ */
+const svgWa=`<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`;
+const svgShare=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>`;
 
-function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-function showToast(message, type = 'default') {
-    const container = document.getElementById('toastContainer');
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.textContent = translations[currentLang][message] || message;
-    container.appendChild(toast);
-    setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3000);
-}
-
-// ==================== MENU ====================
-function openMenu() {
-    document.getElementById('menuBtn').classList.add('active');
-    document.getElementById('mobileMenu').classList.add('active');
-    document.getElementById('menuBackdrop').classList.add('active');
-    document.body.style.overflow = 'hidden';
-}
-function closeMenu() {
-    document.getElementById('menuBtn').classList.remove('active');
-    document.getElementById('mobileMenu').classList.remove('active');
-    document.getElementById('menuBackdrop').classList.remove('active');
-    document.body.style.overflow = '';
-}
-function toggleMenu() {
-    document.getElementById('mobileMenu').classList.contains('active') ? closeMenu() : openMenu();
-}
-
-// ==================== MODAL ====================
-function openModal(id) {
-    const el = document.getElementById(id);
-    el.style.display = 'flex';
-    requestAnimationFrame(() => el.classList.add('active'));
-    document.body.style.overflow = 'hidden';
-}
-function closeModal(id) {
-    const el = document.getElementById(id);
-    el.classList.remove('active');
-    setTimeout(() => {
-        el.style.display = 'none';
-        if (!document.querySelector('.modal-overlay.active')) document.body.style.overflow = '';
-    }, 300);
-}
-
-// ==================== LANGUAGE ====================
-function updateLanguageUI() {
-    document.documentElement.lang = currentLang;
-    document.querySelectorAll('[data-key]').forEach(el => {
-        const key = el.getAttribute('data-key');
-        const val = translations[currentLang][key];
-        if (val && el.tagName !== 'INPUT' && el.tagName !== 'SELECT') el.textContent = val;
-    });
-    document.querySelectorAll('[data-placeholder]').forEach(el => {
-        const key = el.getAttribute('data-placeholder');
-        if (translations[currentLang][key]) el.placeholder = translations[currentLang][key];
-    });
-    document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.lang === currentLang));
-    renderProducts();
-}
-function switchLanguage(lang) {
-    currentLang = lang;
-    updateLanguageUI();
-    closeMenu();
-}
-
-// ==================== COPY PHONE ====================
-function copyPhone() {
-    const num = '07504957293';
-    const fallback = () => {
-        const ta = document.createElement('textarea');
-        ta.value = num; document.body.appendChild(ta); ta.select();
-        document.execCommand('copy'); document.body.removeChild(ta);
-        showToast('phoneCopied','success');
-    };
-    navigator.clipboard ? navigator.clipboard.writeText(num).then(()=>showToast('phoneCopied','success')).catch(fallback) : fallback();
-}
-
-// ==================== CATEGORY LABELS ====================
-function getCategoryLabel(cat) {
-    const map = {
-        phones:   currentLang==='ku' ? 'مۆبایل'  : 'هاتف',
-        sim:      currentLang==='ku' ? 'سیمکارت' : 'شريحة',
-        headsets: currentLang==='ku' ? 'هێدسێت'  : 'سماعة',
-        others:   currentLang==='ku' ? 'کەلوپەل' : 'إكسسوار'
-    };
-    return map[cat] || cat;
-}
-function getPhoneTypeLabel(type) {
-    const map = {
-        iphone:  'iPhone',
-        android: currentLang==='ku' ? 'ئەندرۆید' : 'أندرويد',
-        other:   currentLang==='ku' ? 'تر'        : 'أخرى'
-    };
-    return map[type] || type;
-}
-
-// WhatsApp icon SVG (small)
-const WA_SVG = `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`;
-
-const SHARE_SVG = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>`;
-
-// ==================== RENDER ====================
-async function renderProducts() {
-    const grid = document.getElementById('productsGrid');
-    grid.innerHTML = '<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>';
-
-    let products = await fetchProducts();
-    let filtered = currentFilter === 'all' ? products : products.filter(p => p.category === currentFilter);
-    if (currentFilter === 'phones' && currentSubFilter !== 'all') {
-        filtered = filtered.filter(p => p.phone_type === currentSubFilter);
-    }
-
-    if (filtered.length === 0) {
-        grid.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📱</div><h3>${t('emptyTitle')}</h3><p>${t('emptyText')}</p></div>`;
+/* ══════════════════════════════════════
+   RENDER PRODUCTS
+══════════════════════════════════════ */
+async function renderProducts(){
+    const grid=document.getElementById('productsGrid');
+    grid.innerHTML='<div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div>';
+    const all=await fetchProducts();
+    let list=filter==='all'?all:all.filter(p=>p.category===filter);
+    if(filter==='phones'&&subFilter!=='all')list=list.filter(p=>p.phone_type===subFilter);
+    if(!list.length){
+        grid.innerHTML=`<div class="empty-state"><div class="ei">📱</div><h3>${t('emptyT')}</h3><p>${t('emptyD')}</p></div>`;
         return;
     }
-
-    grid.innerHTML = filtered.map(product => {
-        const badge = (product.category === 'phones' && product.phone_type)
-            ? getPhoneTypeLabel(product.phone_type)
-            : getCategoryLabel(product.category);
-        const safeId   = escapeHtml(String(product.id));
-        const safeName = escapeHtml(product.name);
-        const safeImg  = escapeHtml(product.image_url || '');
-        return `
-        <article class="product-card" data-id="${safeId}">
-            <div class="card-image-wrapper">
-                <img src="${safeImg}" alt="${safeName}" class="card-image" loading="lazy"
-                     onerror="this.src='https://placehold.co/400x500/f2f2f7/8e8e93?text=Malik+Phone'">
-                <div class="card-image-overlay">
-                    <div class="card-overlay-name">${safeName}</div>
+    grid.innerHTML=list.map(p=>{
+        const badge=(p.category==='phones'&&p.phone_type)?ptLabel(p.phone_type):catLabel(p.category);
+        const sid=esc(String(p.id)),sn=esc(p.name),si=esc(p.image_url||'');
+        return`<article class="p-card" data-id="${sid}">
+            <div class="p-img-wrap">
+                <img class="p-img" src="${si}" alt="${sn}" loading="lazy"
+                     onerror="this.src='https://placehold.co/400x520/f0f0eb/999?text=Malik+Phone'">
+                <div class="p-overlay">
+                    <div class="p-name">${sn}</div>
                 </div>
-                <span class="card-badge">${badge}</span>
-                <button type="button" class="delete-btn" data-id="${safeId}">×</button>
+                <span class="p-badge">${badge}</span>
+                <button class="p-delete" data-id="${sid}" type="button">×</button>
             </div>
-            <div class="card-content">
-                <span class="card-price">${formatPrice(product.price)}</span>
-                <div class="card-actions">
-                    <button type="button" class="btn-action"
-                        data-share-id="${safeId}"
-                        data-share-name="${safeName}"
-                        data-share-price="${product.price}"
-                        title="Share">${SHARE_SVG}</button>
-                    <button type="button" class="btn-action whatsapp"
-                        data-wa-name="${safeName}"
-                        data-wa-price="${product.price}"
-                        title="WhatsApp">${WA_SVG}</button>
+            <div class="p-foot">
+                <span class="p-price">${fmtPrice(p.price)}</span>
+                <div class="p-actions">
+                    <button class="p-btn" type="button"
+                        data-sn="${sn}" data-sp="${p.price}">${svgShare}</button>
+                    <button class="p-btn wa" type="button"
+                        data-wn="${sn}" data-wp="${p.price}">${svgWa}</button>
                 </div>
             </div>
         </article>`;
     }).join('');
 
-    // Delete
-    grid.querySelectorAll('.delete-btn').forEach(btn =>
-        btn.addEventListener('click', () => handleDelete(btn.dataset.id))
-    );
-
-    // WhatsApp per product — includes name + price
-    grid.querySelectorAll('.btn-action.whatsapp').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const name  = btn.dataset.waName;
-            const price = formatPrice(Number(btn.dataset.waPrice));
-            const msg = currentLang === 'ku'
-                ? `سڵاو، پرسیارێکم هەیە دەربارەی ئەم کاڵایە:\n📦 ${name}\n💰 ${price}`
-                : `مرحباً، عندي سؤال عن هذا المنتج:\n📦 ${name}\n💰 ${price}`;
-            window.open(`https://wa.me/${PHONE_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
-        });
-    });
-
-    // Share
-    grid.querySelectorAll('[data-share-id]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const shareData = {
-                title: btn.dataset.shareName,
-                text: `${btn.dataset.shareName} — ${formatPrice(Number(btn.dataset.sharePrice))} | Malik Phone`,
-                url: window.location.href
-            };
-            if (navigator.share) { navigator.share(shareData).catch(()=>{}); }
-            else { navigator.clipboard.writeText(`${shareData.title}\n${shareData.text}`).then(()=>showToast('phoneCopied','success')); }
-        });
-    });
+    /* Delete */
+    grid.querySelectorAll('.p-delete').forEach(b=>b.addEventListener('click',()=>doDelete(b.dataset.id)));
+    /* WhatsApp – includes product name + price */
+    grid.querySelectorAll('.p-btn.wa').forEach(b=>b.addEventListener('click',()=>{
+        const nm=b.dataset.wn, pr=fmtPrice(Number(b.dataset.wp));
+        const msg=lang==='ku'
+            ?`سڵاو، پرسیارێکم هەیە دەربارەی ئەم کاڵایە:\n📦 ${nm}\n💰 ${pr}`
+            :`مرحباً، عندي سؤال عن هذا المنتج:\n📦 ${nm}\n💰 ${pr}`;
+        window.open(`https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`,'_blank');
+    }));
+    /* Share */
+    grid.querySelectorAll('.p-btn:not(.wa)').forEach(b=>b.addEventListener('click',()=>{
+        const nm=b.dataset.sn, pr=fmtPrice(Number(b.dataset.sp));
+        const sd={title:nm,text:`${nm} — ${pr} | Malik Phone`,url:window.location.href};
+        navigator.share?navigator.share(sd).catch(()=>{})
+            :navigator.clipboard.writeText(`${sd.title}\n${sd.text}`).then(()=>toast('copied','ok'));
+    }));
 }
 
-// ==================== FILTERS ====================
-function setupFilters() {
-    const mainBtns = document.querySelectorAll('#mainFilters .filter-btn');
-    const subContainer = document.getElementById('phoneSubFilters');
-    const subBtns = document.querySelectorAll('#phoneSubFilters .filter-btn');
-
-    mainBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            mainBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            currentFilter = btn.dataset.filter;
-            if (currentFilter === 'phones') {
-                subContainer.classList.add('active');
-                currentSubFilter = 'all';
-                subBtns.forEach(b => b.classList.remove('active'));
-                subBtns[0].classList.add('active');
-            } else {
-                subContainer.classList.remove('active');
-                currentSubFilter = 'all';
-            }
-            renderProducts();
-        });
-    });
-    subBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            subBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            currentSubFilter = btn.dataset.subfilter;
-            renderProducts();
-        });
-    });
+/* ══════════════════════════════════════
+   FILTERS
+══════════════════════════════════════ */
+function initFilters(){
+    const mains=document.querySelectorAll('#mainFilters .filter-chip');
+    const sub=document.getElementById('phoneSubFilters');
+    const subs=document.querySelectorAll('#phoneSubFilters .filter-chip');
+    mains.forEach(b=>b.addEventListener('click',()=>{
+        mains.forEach(x=>x.classList.remove('on'));b.classList.add('on');
+        filter=b.dataset.filter;
+        if(filter==='phones'){sub.classList.add('visible');subFilter='all';subs.forEach((x,i)=>x.classList.toggle('on',i===0))}
+        else{sub.classList.remove('visible');subFilter='all';}
+        renderProducts();
+    }));
+    subs.forEach(b=>b.addEventListener('click',()=>{
+        subs.forEach(x=>x.classList.remove('on'));b.classList.add('on');
+        subFilter=b.dataset.subfilter;renderProducts();
+    }));
 }
 
-// ==================== IMAGE ====================
-function handleImageSelect(file) {
-    if (!file) return;
-    if (file.size > 8 * 1024 * 1024) {
-        showToast(currentLang==='ku' ? 'قەبارەی وێنە زۆر گەورەیە (بیستر لە 8MB)' : 'حجم الصورة كبير جداً (أكثر من 8MB)', 'error');
-        return;
-    }
-    selectedFile = file;
-    const reader = new FileReader();
-    reader.onload = e => {
-        document.getElementById('previewImg').src = e.target.result;
-        document.getElementById('imagePreview').classList.add('active');
-        document.getElementById('fileLabel').innerHTML = `<span style="color:var(--accent);font-weight:700;">${file.name}</span>`;
+/* ══════════════════════════════════════
+   DRAWER / MENU
+══════════════════════════════════════ */
+function openDrawer(){
+    document.getElementById('drawer').classList.add('open');
+    document.getElementById('drawerScrim').classList.add('open');
+    document.getElementById('menuTrigger').classList.add('open');
+    document.body.style.overflow='hidden';
+}
+function closeDrawer(){
+    document.getElementById('drawer').classList.remove('open');
+    document.getElementById('drawerScrim').classList.remove('open');
+    document.getElementById('menuTrigger').classList.remove('open');
+    document.body.style.overflow='';
+}
+
+/* ══════════════════════════════════════
+   MODALS
+══════════════════════════════════════ */
+function openModal(id){
+    const el=document.getElementById(id);
+    el.style.display='flex';
+    requestAnimationFrame(()=>el.classList.add('open'));
+    document.body.style.overflow='hidden';
+}
+function closeModal(id){
+    const el=document.getElementById(id);
+    el.classList.remove('open');
+    setTimeout(()=>{el.style.display='none';
+        if(!document.querySelector('.modal-bg.open'))document.body.style.overflow='';},300);
+}
+
+/* ══════════════════════════════════════
+   LANGUAGE
+══════════════════════════════════════ */
+function applyLang(){
+    document.documentElement.lang=lang;
+    document.querySelectorAll('[data-key]').forEach(el=>{
+        const v=T[lang][el.dataset.key];
+        if(v&&el.tagName!=='INPUT'&&el.tagName!=='SELECT')el.textContent=v;
+    });
+    document.querySelectorAll('[data-placeholder]').forEach(el=>{
+        const v=T[lang][el.dataset.placeholder];
+        if(v)el.placeholder=v;
+    });
+    document.querySelectorAll('.lang-pill').forEach(b=>b.classList.toggle('on',b.dataset.lang===lang));
+}
+function switchLang(l){lang=l;applyLang();renderProducts();closeDrawer()}
+
+/* ══════════════════════════════════════
+   COPY PHONE
+══════════════════════════════════════ */
+function copyPhone(){
+    const n='07504957293';
+    const fb=()=>{const ta=document.createElement('textarea');ta.value=n;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);toast('copied','ok')};
+    navigator.clipboard?navigator.clipboard.writeText(n).then(()=>toast('copied','ok')).catch(fb):fb();
+}
+
+/* ══════════════════════════════════════
+   IMAGE PICK
+══════════════════════════════════════ */
+function onImgPick(file){
+    if(!file)return;
+    if(file.size>8*1024*1024){toast(lang==='ku'?'قەبارەی وێنە زۆر گەورەیە':'حجم الصورة كبير','err');return}
+    pickedFile=file;
+    const r=new FileReader();
+    r.onload=e=>{
+        document.getElementById('prevImg').src=e.target.result;
+        document.getElementById('imgPrev').classList.add('on');
+        document.getElementById('fileLabel').innerHTML=`<span style="color:var(--accent);font-weight:700">${file.name}</span>`;
     };
-    reader.readAsDataURL(file);
+    r.readAsDataURL(file);
 }
-function removeImage() {
-    selectedFile = null;
-    document.getElementById('productImage').value = '';
-    document.getElementById('imagePreview').classList.remove('active');
-    document.getElementById('previewImg').src = '';
-    document.getElementById('fileLabel').innerHTML = `<span data-key="chooseImage">${t('chooseImage')}</span>`;
-}
-
-// ==================== ADMIN ====================
-function checkAdminSession() {
-    try {
-        const session = localStorage.getItem(ADMIN_SESSION_KEY);
-        if (!session) return;
-        const data = JSON.parse(session);
-        if (data.timestamp && (Date.now() - data.timestamp < THIRTY_DAYS)) {
-            isAdmin = true; document.body.classList.add('admin-mode');
-        } else { localStorage.removeItem(ADMIN_SESSION_KEY); }
-    } catch(e) { localStorage.removeItem(ADMIN_SESSION_KEY); }
-}
-function openAdminAccess() {
-    closeMenu();
-    isAdmin ? openModal('adminPanelModal') : (openModal('adminLoginModal'), setTimeout(()=>document.getElementById('adminPassword').focus(), 200));
-}
-function verifyAdmin() {
-    const input = document.getElementById('adminPassword').value;
-    if (input === ADMIN_PASSWORD) {
-        isAdmin = true; document.body.classList.add('admin-mode');
-        localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify({ timestamp: Date.now() }));
-        closeModal('adminLoginModal');
-        document.getElementById('adminPassword').value = '';
-        setTimeout(() => openModal('adminPanelModal'), 250);
-        showToast('loginSuccess','success');
-    } else {
-        showToast('loginFailed','error');
-        document.getElementById('adminPassword').value = '';
-    }
-}
-function logoutAdmin() {
-    isAdmin = false; document.body.classList.remove('admin-mode');
-    localStorage.removeItem(ADMIN_SESSION_KEY);
-    closeModal('adminPanelModal'); renderProducts(); showToast('logoutSuccess');
+function clearImg(){
+    pickedFile=null;
+    document.getElementById('pImg').value='';
+    document.getElementById('imgPrev').classList.remove('on');
+    document.getElementById('prevImg').src='';
+    document.getElementById('fileLabel').innerHTML=`<span data-key="chooseImg">${t('chooseImg')}</span>`;
 }
 
-async function handleDelete(productId) {
-    if (!isAdmin) return;
-    if (!confirm(t('deleteConfirm'))) return;
-    try {
-        await deleteProduct(productId);
-        await renderProducts();
-        showToast('productDeleted','success');
-    } catch(err) {
-        console.error(err);
-        showToast(currentLang==='ku' ? 'کێشە لە سڕینەوە' : 'خطأ في الحذف', 'error');
-    }
+/* ══════════════════════════════════════
+   ADMIN AUTH
+══════════════════════════════════════ */
+function checkSession(){
+    try{
+        const s=localStorage.getItem(SK);if(!s)return;
+        const d=JSON.parse(s);
+        if(d.ts&&Date.now()-d.ts<TTL){isAdmin=true;document.body.classList.add('admin-mode')}
+        else localStorage.removeItem(SK);
+    }catch(e){localStorage.removeItem(SK)}
+}
+function openAdmin(){
+    closeDrawer();
+    isAdmin?openModal('panelModal'):(openModal('loginModal'),setTimeout(()=>document.getElementById('adminPw').focus(),200));
+}
+function doLogin(){
+    const v=document.getElementById('adminPw').value;
+    if(v===ADMIN_PW){
+        isAdmin=true;document.body.classList.add('admin-mode');
+        localStorage.setItem(SK,JSON.stringify({ts:Date.now()}));
+        closeModal('loginModal');document.getElementById('adminPw').value='';
+        setTimeout(()=>openModal('panelModal'),250);toast('loginOk','ok');
+    }else{toast('loginFail','err');document.getElementById('adminPw').value=''}
+}
+function doLogout(){
+    isAdmin=false;document.body.classList.remove('admin-mode');
+    localStorage.removeItem(SK);closeModal('panelModal');renderProducts();toast('logoutOk');
 }
 
-async function handleAddProduct() {
-    const name     = document.getElementById('productName').value.trim();
-    const rawPrice = document.getElementById('productPrice').value;
-    const category = document.getElementById('productCategory').value;
+async function doDelete(id){
+    if(!isAdmin)return;
+    if(!confirm(t('delConfirm')))return;
+    try{await deleteProduct(id);await renderProducts();toast('deleted','ok')}
+    catch(e){console.error(e);toast(lang==='ku'?'کێشە لە سڕینەوە':'خطأ في الحذف','err')}
+}
 
-    if (!name || !rawPrice) { showToast('fillAll','error'); return; }
-    if (!selectedFile)       { showToast('chooseImg','error'); return; }
+async function doAdd(){
+    const name=document.getElementById('pName').value.trim();
+    const rawPr=document.getElementById('pPrice').value;
+    const category=document.getElementById('pCat').value;
+    if(!name||!rawPr){toast('fillAll','err');return}
+    if(!pickedFile){toast('chooseImgErr','err');return}
+    const price=parsePrice(rawPr);
+    if(price<=0){toast('fillAll','err');return}
 
-    // FIX: strip commas/$ before parsing — "400,000" → 400000
-    const price = parsePrice(rawPrice);
-    if (!price || price <= 0) { showToast('fillAll','error'); return; }
-
-    const btn = document.getElementById('addProductBtn');
-    btn.disabled = true;
-    btn.innerHTML = `<div class="upload-spinner"></div> ${t('uploading')}`;
-    const progress = document.getElementById('uploadProgress');
-    progress.classList.add('active');
-    document.getElementById('uploadProgressText').textContent = t('uploading');
-
-    try {
-        const imageUrl = await uploadImage(selectedFile);
-        const product = { name, price, category, image_url: imageUrl };
-        if (category === 'phones') product.phone_type = document.getElementById('phoneType').value;
-        await insertProduct(product);
-
-        document.getElementById('productName').value = '';
-        document.getElementById('productPrice').value = '';
-        document.getElementById('productCategory').value = 'phones';
-        document.getElementById('phoneTypeGroup').style.display = 'block';
-        removeImage();
-        progress.classList.remove('active');
-        closeModal('adminPanelModal');
-        await renderProducts();
-        showToast('productAdded','success');
-    } catch(err) {
-        console.error('Add product error:', err);
-        showToast('uploadError','error');
-    } finally {
-        btn.disabled = false;
-        btn.textContent = t('addProductBtn');
-        progress.classList.remove('active');
+    const btn=document.getElementById('addBtn');
+    btn.disabled=true;
+    btn.innerHTML=`<div class="spin"></div> ${t('uploading')}`;
+    const prog=document.getElementById('uploadProg');
+    prog.classList.add('on');
+    document.getElementById('uploadTxt').textContent=t('uploading');
+    try{
+        const url=await uploadImage(pickedFile);
+        const prod={name,price,category,image_url:url};
+        if(category==='phones')prod.phone_type=document.getElementById('pType').value;
+        await insertProduct(prod);
+        document.getElementById('pName').value='';
+        document.getElementById('pPrice').value='';
+        document.getElementById('pCat').value='phones';
+        document.getElementById('phoneTypeRow').style.display='block';
+        clearImg();prog.classList.remove('on');
+        closeModal('panelModal');await renderProducts();toast('added','ok');
+    }catch(err){
+        console.error(err);toast('uploadErr','err');
+    }finally{
+        btn.disabled=false;btn.textContent=t('addBtn');prog.classList.remove('on');
     }
 }
 
-// ==================== INIT ====================
-function init() {
-    document.getElementById('year').textContent = new Date().getFullYear();
-    document.querySelectorAll('.modal-overlay').forEach(el => el.style.display = 'none');
-    checkAdminSession();
+/* ══════════════════════════════════════
+   INIT
+══════════════════════════════════════ */
+function init(){
+    document.getElementById('yr').textContent=new Date().getFullYear();
+    document.querySelectorAll('.modal-bg').forEach(el=>el.style.display='none');
+    checkSession();
 
-    document.getElementById('menuBtn').addEventListener('click', toggleMenu);
-    document.getElementById('menuBackdrop').addEventListener('click', closeMenu);
-    document.getElementById('copyPhoneBtn').addEventListener('click', copyPhone);
-    document.getElementById('adminFooterBtn').addEventListener('click', openAdminAccess);
-    document.getElementById('loginBtn').addEventListener('click', verifyAdmin);
-    document.getElementById('adminPassword').addEventListener('keypress', e => { if(e.key==='Enter') verifyAdmin(); });
-    document.getElementById('closeLoginModal').addEventListener('click', () => closeModal('adminLoginModal'));
-    document.getElementById('closePanelModal').addEventListener('click', () => closeModal('adminPanelModal'));
-    document.getElementById('addProductBtn').addEventListener('click', handleAddProduct);
-    document.getElementById('logoutBtn').addEventListener('click', logoutAdmin);
+    /* Menu */
+    document.getElementById('menuTrigger').addEventListener('click',()=>
+        document.getElementById('drawer').classList.contains('open')?closeDrawer():openDrawer());
+    document.getElementById('drawerScrim').addEventListener('click',closeDrawer);
 
-    // FIX: live-format price as user types
-    document.getElementById('productPrice').addEventListener('input', function() { formatPriceInput(this); });
+    /* Footer */
+    document.getElementById('copyBtn').addEventListener('click',copyPhone);
+    document.getElementById('footerAdminBtn').addEventListener('click',openAdmin);
 
-    document.getElementById('productCategory').addEventListener('change', function() {
-        document.getElementById('phoneTypeGroup').style.display = this.value === 'phones' ? 'block' : 'none';
+    /* Login */
+    document.getElementById('loginBtn').addEventListener('click',doLogin);
+    document.getElementById('adminPw').addEventListener('keypress',e=>{if(e.key==='Enter')doLogin()});
+    document.getElementById('closeLoginModal').addEventListener('click',()=>closeModal('loginModal'));
+
+    /* Panel */
+    document.getElementById('closePanelModal').addEventListener('click',()=>closeModal('panelModal'));
+    document.getElementById('addBtn').addEventListener('click',doAdd);
+    document.getElementById('logoutBtn').addEventListener('click',doLogout);
+    document.getElementById('pCat').addEventListener('change',function(){
+        document.getElementById('phoneTypeRow').style.display=this.value==='phones'?'block':'none';
     });
-    document.getElementById('productImage').addEventListener('change', e => {
-        if (e.target.files[0]) handleImageSelect(e.target.files[0]);
-    });
-    document.getElementById('removeImageBtn').addEventListener('click', removeImage);
+    document.getElementById('pPrice').addEventListener('input',function(){liveFormatPrice(this)});
+    document.getElementById('pImg').addEventListener('change',e=>{if(e.target.files[0])onImgPick(e.target.files[0])});
+    document.getElementById('rmImg').addEventListener('click',clearImg);
 
-    document.querySelectorAll('.modal-overlay').forEach(overlay => {
-        overlay.addEventListener('click', e => {
-            if (e.target === overlay && overlay.id !== 'adminPanelModal') closeModal(overlay.id);
-        });
-    });
+    /* Backdrop close */
+    document.querySelectorAll('.modal-bg').forEach(bg=>bg.addEventListener('click',e=>{
+        if(e.target===bg&&bg.id!=='panelModal')closeModal(bg.id);
+    }));
 
-    setupFilters();
-    updateLanguageUI();
+    initFilters();
+    applyLang();
 }
 
-document.readyState === 'loading'
-    ? document.addEventListener('DOMContentLoaded', init)
-    : init();
+document.readyState==='loading'
+    ?document.addEventListener('DOMContentLoaded',init)
+    :init();
 </script>
 </body>
 </html>
